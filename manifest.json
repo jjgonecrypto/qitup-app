@@ -1,0 +1,24 @@
+{
+	"AppDescription": {
+		"en": "Controlling a playlist via twitter hashtags"
+	},
+	"AppIcon": {
+		"36x18": "tutorial.png"
+	},
+	"AppName": {
+		"en": "Tweet Control"
+	},
+	"BundleIdentifier": "tweetctrl",
+	"BundleType": "Application",
+	"BundleVersion": "0.1",
+	
+	"RequiredInterface": 1,
+	"RequiredPermissions": [
+	    "http://api.twitter.com",
+	    "http://search.twitter.com/"
+	],
+	"SupportedLanguages": [
+		"en"
+	],
+	"VendorIdentifier": "com.justinjmoses"
+}

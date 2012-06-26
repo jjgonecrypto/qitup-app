@@ -1,0 +1,16 @@
+body, html {
+  margin: 0px;
+  font-family: "Helvetica Neue", Helvetica, sans-serif; 
+
+}
+.content {
+  padding: 1em;
+}
+
+ul.inline > li {
+  list-style-type: none;
+  display: inline-block;
+}
+
+button {
+ }
