@@ -6,9 +6,9 @@
 		"36x18": "tutorial.png"
 	},
 	"AppName": {
-		"en": "Tweet Control"
+		"en": "twimote"
 	},
-	"BundleIdentifier": "tweetctrl",
+	"BundleIdentifier": "twimote",
 	"BundleType": "Application",
 	"BundleVersion": "0.1",
 	

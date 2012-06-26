@@ -9,7 +9,8 @@ function init() {
   var views = sp.require('sp://import/scripts/api/views');
   
   var playlist = new models.Playlist();
-  
+  console.log("creating playlist");
+
   var status = document.getElementById('details');
 
   searchBtn.addEventListener('click', function() {
@@ -32,9 +33,9 @@ function init() {
             if (search.tracks.length) {
               var track = search.tracks[0];
               playlist.add(track);
-              //if (!models.player.playing) {
+              if (!models.player.playing) {
                 models.player.play(track, playlist);
-              //}
+              }
               status.innerHTML = track.name;
             }     
           });
