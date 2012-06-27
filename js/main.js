@@ -7,11 +7,11 @@ function init() {
  
   var hashtag = document.getElementById('hashtag');
   var searchBtn = document.getElementById('search');
-  var playlist = new models.Playlist();
   var status = document.getElementById('details');
 
   searchBtn.addEventListener('click', function() {
-     
+    var playlist = new models.Playlist();
+  
     var xhr = new XMLHttpRequest();
     var request = 'http://search.twitter.com/search.json?q=' + hashtag.value
 
@@ -21,7 +21,7 @@ function init() {
       if (xhr.readyState != 4) return;
 
       var data = JSON.parse(xhr.responseText);
-      var names = [];
+      var html = "";
       data.results.forEach(function(result) {
         var tweet = result.text;
 
@@ -33,11 +33,11 @@ function init() {
             var track = search.tracks[0];
             if (playlist.indexOf(track) >= 0) return;
             playlist.add(track);
-            if (!models.player.playing)
+            if (playlist.length == 1)
               models.player.play(track, playlist, 0);
-            names.push(track.name + " by " + track.artists[0].name);
+            html += "<li><strong>" + track.name + "</strong> by " + track.artists[0].name + " (@" + result.from_user + ")</li>";
           }
-          status.innerHTML = names.join(",");
+          status.innerHTML = "<ul>" + html + "</ul>";
           search.ignore(models.EVENT.CHANGE);     
         });
 
