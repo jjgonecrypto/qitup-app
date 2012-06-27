@@ -31,6 +31,7 @@ function init() {
           
           if (search.tracks.length) {
             var track = search.tracks[0];
+            if (playlist.indexOf(track) >= 0) return;
             playlist.add(track);
             if (!models.player.playing)
               models.player.play(track, playlist, 0);
