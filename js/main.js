@@ -3,19 +3,15 @@ var sp = getSpotifyApi(1);
 exports.init = init;
 
 function init() {
+  var models = sp.require('sp://import/scripts/api/models');
+ 
   var hashtag = document.getElementById('hashtag');
   var searchBtn = document.getElementById('search');
-  var models = sp.require('sp://import/scripts/api/models');
-  var views = sp.require('sp://import/scripts/api/views');
-  
   var playlist = new models.Playlist();
-  console.log("creating playlist");
-
   var status = document.getElementById('details');
 
   searchBtn.addEventListener('click', function() {
      
-
     var xhr = new XMLHttpRequest();
     var request = 'http://search.twitter.com/search.json?q=' + hashtag.value
 
@@ -23,6 +19,7 @@ function init() {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState != 4) return;
+
         var data = JSON.parse(xhr.responseText);
         if (data.results[0]) { 
           var tweet = data.results[0].text;
@@ -33,19 +30,18 @@ function init() {
             if (search.tracks.length) {
               var track = search.tracks[0];
               playlist.add(track);
-              if (!models.player.playing) {
-                models.player.play(track, playlist);
-              }
+              if (!models.player.playing)
+                models.player.play(track, playlist, 0);
               status.innerHTML = track.name;
-            }     
+            }
+            search.ignore(models.EVENT.CHANGE);     
           });
 
           search.appendNext();
         }
         //console.log(data);
+        xhr.onreadystatechange = null;
     }
-
-      
 
     xhr.send(null);
 
