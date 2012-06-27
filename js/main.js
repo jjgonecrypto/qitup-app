@@ -18,28 +18,33 @@ function init() {
     xhr.open('GET', request);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState != 4) return;
+      if (xhr.readyState != 4) return;
 
-        var data = JSON.parse(xhr.responseText);
-        if (data.results[0]) { 
-          var tweet = data.results[0].text;
+      var data = JSON.parse(xhr.responseText);
+      var names = [];
+      data.results.forEach(function(result) {
+        var tweet = result.text;
 
-          var search = new models.Search(tweet.match(/(?=play:).+?(?=\s)/i)[0].substr(5));
+        var search = new models.Search(tweet.match(/(?=play:).+?(?=\s)/i)[0].substr(5));
 
-          search.observe(models.EVENT.CHANGE, function() {
-            if (search.tracks.length) {
-              var track = search.tracks[0];
-              playlist.add(track);
-              if (!models.player.playing)
-                models.player.play(track, playlist, 0);
-              status.innerHTML = track.name;
-            }
-            search.ignore(models.EVENT.CHANGE);     
-          });
+        search.observe(models.EVENT.CHANGE, function() {
+          
+          if (search.tracks.length) {
+            var track = search.tracks[0];
+            playlist.add(track);
+            if (!models.player.playing)
+              models.player.play(track, playlist, 0);
+            names.push(track.name + " by " + track.artists[0].name);
+          }
+          status.innerHTML = names.join(",");
+          search.ignore(models.EVENT.CHANGE);     
+        });
 
-          search.appendNext();
-        }
-        //console.log(data);
+        search.appendNext();
+
+      });
+          
+        
         xhr.onreadystatechange = null;
     }
 
