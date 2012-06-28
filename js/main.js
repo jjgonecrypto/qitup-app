@@ -34,14 +34,17 @@ function init() {
 
             if (search.tracks.length) {
               var track = search.tracks[0];
-              if (playlist.indexOf(track) >= 0) return;
 
-              html += "<li><ul class='inline'><li>" + image(track.image);
-              
+              if (playlist.indexOf(track) >= 0) return;
               playlist.add(track);
               if (playlist.length == 1) models.player.play(track, playlist, 0);
-              html += "</li><li class='track'><strong>" + track.name + "</strong><br />by " + track.artists[0].name + "</li>"; 
-              html += "<li>" + image(result.profile_image_url) + "</li><li class='user'><a href='http://twitter.com/"+result.from_user+"'>" + result.from_user_name + " (@"+result.from_user+")" + "</a></li></ul></li>";
+
+              html += "<li><ul class='inline'>";
+              html += "<li>" + image(track.image) + "</li>";
+              html += "<li class='track'><strong>" + track.name + "</strong><br />by " + track.artists[0].name + "</li>"; 
+              html += "<li>" + image(result.profile_image_url) + "</li>";
+              html += "<li class='user'><a href='http://twitter.com/"+result.from_user+"'>" + result.from_user_name + " (@"+result.from_user+")" + "</a></li>";
+              html += "</ul></li>";
             }
 
             status.innerHTML = "<ul class='results'>" + html + "</ul>";
@@ -53,17 +56,16 @@ function init() {
 
       });
         
-        xhr.onreadystatechange = null;
+      xhr.onreadystatechange = null;
     }
 
     xhr.send(null);
-
-    console.log("clicked");
 
   });
 
 }
 
+//helper to output html of an <img> tag
 function image(uri, width, height) {
   var img;
   width = width || 50;
