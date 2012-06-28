@@ -14,3 +14,21 @@ ul.inline > li {
 
 button {
  }
+
+ul.results li { vertical-align: middle; }
+
+ul.results > li { 
+  margin: 0.3em 0px;
+  vertical-align: middle;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #333;
+}
+
+li.track { 
+  margin-left: 1em;
+  width: 25em;
+}
+li.user { 
+  margin-left: 1em;
+}
+li.user > a { color: #0099cc;}
