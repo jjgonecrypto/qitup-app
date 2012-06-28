@@ -32,6 +32,6 @@ running
 
 1. open spotify app 
 
-1. search for `spotify:app:tweetctrl` (loads the app)
+1. search for `spotify:app:twimote` (loads the app)
 
-1. enter in your search query and click "search". lastest track should start to play.
+1. enter in your search query and click "search". (note: hash `#` character is not required). lastest track should start to play.
