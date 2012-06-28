@@ -10,10 +10,11 @@ function init() {
   var status = document.getElementById('details');
 
   searchBtn.addEventListener('click', function() {
+    status.innerHTML = "";
+
     var playlist = new models.Playlist();
-  
     var xhr = new XMLHttpRequest();
-    var request = 'http://search.twitter.com/search.json?q=' + hashtag.value
+    var request = 'http://search.twitter.com/search.json?q=' + hashtag.value;
 
     xhr.open('GET', request);
 
@@ -25,26 +26,32 @@ function init() {
       data.results.forEach(function(result) {
         var tweet = result.text;
 
-        var search = new models.Search(tweet.match(/(?=play:).+?(?=\s)/i)[0].substr(5));
+        var trackName = tweet.match(/(?=play:).+?(?=\s)/i)[0].substr(5);
+        if (trackName.length) {
+          var search = new models.Search(trackName);
 
-        search.observe(models.EVENT.CHANGE, function() {
-          
-          if (search.tracks.length) {
-            var track = search.tracks[0];
-            if (playlist.indexOf(track) >= 0) return;
-            playlist.add(track);
-            if (playlist.length == 1)
-              models.player.play(track, playlist, 0);
-            html += "<li><strong>" + track.name + "</strong> by " + track.artists[0].name + " (@" + result.from_user + ")</li>";
-          }
-          status.innerHTML = "<ul>" + html + "</ul>";
-          search.ignore(models.EVENT.CHANGE);     
-        });
+          search.observe(models.EVENT.CHANGE, function() {
 
-        search.appendNext();
+            if (search.tracks.length) {
+              var track = search.tracks[0];
+              if (playlist.indexOf(track) >= 0) return;
+
+              html += "<li><ul class='inline'><li>" + image(track.image);
+              
+              playlist.add(track);
+              if (playlist.length == 1) models.player.play(track, playlist, 0);
+              html += "</li><li class='track'><strong>" + track.name + "</strong><br />by " + track.artists[0].name + "</li>"; 
+              html += "<li>" + image(result.profile_image_url) + "</li><li class='user'><a href='http://twitter.com/"+result.from_user+"'>" + result.from_user_name + " (@"+result.from_user+")" + "</a></li></ul></li>";
+            }
+
+            status.innerHTML = "<ul class='results'>" + html + "</ul>";
+            search.ignore(models.EVENT.CHANGE);     
+          });
+
+          search.appendNext();
+        }
 
       });
-          
         
         xhr.onreadystatechange = null;
     }
@@ -55,4 +62,13 @@ function init() {
 
   });
 
+}
+
+function image(uri, width, height) {
+  var img;
+  width = width || 50;
+  height = height || 50;
+  img = new Image(width, height);
+  img.src = uri;
+  return img.outerHTML;
 }
