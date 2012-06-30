@@ -7,13 +7,25 @@ twitter = sp.require "/scripts/js/twitter"
 search = sp.require "/scripts/js/search"
 services = [twitter]
 
-
 init = ->
-
+  interval = undefined
   query = document.getElementById "query"
   searchBtn = document.getElementById "search"
+  stopBtn = document.getElementById "stop"
   status = document.getElementById "details"
   searchBtn.addEventListener "click", ->
+    clearInterval interval if interval
+    interval = setInterval search, 2*1000
+    search()
+
+  stopBtn.addEventListener "click", ->
+    clearInterval interval if interval
+
+  toggle: (state) ->
+    listening = document.getElementById "listening"
+    #TODO - toggle listening on / off
+
+  search = ->
     html = ""
     status.innerHTML = ""
     playlist = new models.Playlist()
@@ -30,6 +42,6 @@ init = ->
           html += "<li>#{helper.image(avatar_uri)}</li>"
           html += "<li class='user'><a href='{$profile_uri}'>#{fullname} (@#{username})</a></li>"
           html += "</ul></li>"
-          status.innerHTML = "<ul class='results'>" + html + "</ul>"
+          status.innerHTML = "Found and queued: <ul class='results'>" + html + "</ul>"
 
 exports.init = init
