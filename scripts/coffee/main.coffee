@@ -10,7 +10,7 @@ services = [twitter]
 
 init = ->
 
-  hashtag = document.getElementById "hashtag"
+  query = document.getElementById "query"
   searchBtn = document.getElementById "search"
   status = document.getElementById "details"
   searchBtn.addEventListener "click", ->
@@ -19,7 +19,7 @@ init = ->
     playlist = new models.Playlist()
 
     for service in services
-      service.search hashtag.value, (title, band, username, avatar_uri, fullname, profile_uri) ->
+      service.search query.value, (title, band, username, avatar_uri, fullname, profile_uri) ->
         search.spotify title, band, (track) ->
           return unless playlist.indexOf(track) < 0
           playlist.add track
