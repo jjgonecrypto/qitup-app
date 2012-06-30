@@ -14,7 +14,7 @@ search = (query, next) ->
       track = tweet.match(/(?=play:).+?(?=\s)/i)?[0].substr(5)
       artist = tweet.match(/(?=by:).+?(?=\s)/i)?[0].substr(3)
       next track, artist, result.from_user, result.profile_image_url, result.from_user_name
-      , "http://twitter.com/{#result.from_user}" if (track)
+      , "http://twitter.com/#{result.from_user}" if (track)
     xhr.onreadystatechange = null
   xhr.send()  
 
