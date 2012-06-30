@@ -1,5 +1,7 @@
 sp = getSpotifyApi 1
 
+models = sp.require "sp://import/scripts/api/models"
+
 helper = sp.require "/scripts/js/helper"
 twitter = sp.require "/scripts/js/twitter"
 search = sp.require "/scripts/js/search"
@@ -7,7 +9,6 @@ services = [twitter]
 
 
 init = ->
-  models = sp.require "sp://import/scripts/api/models"
 
   hashtag = document.getElementById "hashtag"
   searchBtn = document.getElementById "search"
@@ -29,6 +30,6 @@ init = ->
           html += "<li>#{helper.image(avatar_uri)}</li>"
           html += "<li class='user'><a href='{$profile_uri}'>#{fullname} (@#{username})</a></li>"
           html += "</ul></li>"
-        status.innerHTML = "<ul class='results'>" + html + "</ul>"
+          status.innerHTML = "<ul class='results'>" + html + "</ul>"
 
 exports.init = init
