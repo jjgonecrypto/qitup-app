@@ -15,8 +15,8 @@ init = ->
   status = document.getElementById "details"
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
-    interval = setInterval search, 2*1000
-    search()
+    interval = setInterval searchServices, 30*1000
+    searchServices()
 
   stopBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -25,7 +25,7 @@ init = ->
     listening = document.getElementById "listening"
     #TODO - toggle listening on / off
 
-  search = ->
+  searchServices = ->
     html = ""
     status.innerHTML = ""
     playlist = new models.Playlist()
@@ -35,7 +35,7 @@ init = ->
         search.spotify title, band, (track) ->
           return unless playlist.indexOf(track) < 0
           playlist.add track
-          models.player.play track, playlist, 0 if playlist.length is 1
+          models.player.play track, playlist, 0 if playlist.length is 1 and !models.player.playing
           html += "<li><ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
           html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
