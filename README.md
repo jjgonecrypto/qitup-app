@@ -23,13 +23,13 @@ installation
 
 1. `mkdir ~/Spotify` (or under `My Documents\Spotify` in WinX)
 
-1. `cd Spotify' 
+1. `cd Spotify` 
 
 1. `git clone ....`
 
 1. inside the project root, run `npm install` to ensure you have the dependencies (if you don't have npm, then download and install the latest nodejs).
 
-1. run `cake watch&` to start a process to automatically convert `.coffee` to `.js` and `.styl` to `.css` whenver one of the source files is updated. 
+1. run `cake watch&` to start a background process to automatically convert `.coffee` to `.js` and `.styl` to `.css` whenver one of the source files is updated. 
 
 running 
 ------ 
