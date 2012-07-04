@@ -3,7 +3,9 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 
 spotify = (title, artist, done) ->
-  search = new models.Search title
+  query = "track:#{title}"
+  query += " artist:#{artist}" if artist
+  search = new models.Search query
 
   search.observe models.EVENT.CHANGE, () ->
     search.ignore models.EVENT.CHANGE #remove listener
