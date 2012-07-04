@@ -41,7 +41,7 @@ init = ->
         search.spotify title, band, (track) ->
           return unless playlist.indexOf(track) < 0
           playlist.add track
-          models.player.play track, playlist, 0 if playlist.length is 1 and !models.player.playing
+          models.player.play track, playlist, 0 if !models.player.playing
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
