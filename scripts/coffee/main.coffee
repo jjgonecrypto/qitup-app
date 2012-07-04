@@ -1,51 +1,54 @@
 sp = getSpotifyApi 1
 
+models = sp.require "sp://import/scripts/api/models"
+
+helper = sp.require "/scripts/js/helper"
+twitter = sp.require "/scripts/js/twitter"
+search = sp.require "/scripts/js/search"
+services = [twitter]
+
 init = ->
-  models = sp.require "sp://import/scripts/api/models"
-  hashtag = document.getElementById "hashtag"
+  lastQuery = undefined
+  interval = undefined
+  playlist = undefined
+  input = document.getElementById "query"
   searchBtn = document.getElementById "search"
-  status = document.getElementById "details"
+  stopBtn = document.getElementById "stop"
+  results = document.getElementById "results"
   searchBtn.addEventListener "click", ->
-    status.innerHTML = ""
-    playlist = new models.Playlist()
-    xhr = new XMLHttpRequest()
-    request = "http://search.twitter.com/search.json?q=" + hashtag.value
-    xhr.open "GET", request
-    xhr.onreadystatechange = ->
-      return  unless xhr.readyState is 4
-      data = JSON.parse(xhr.responseText)
-      html = ""
-      data.results.forEach (result) ->
-        tweet = result.text
-        trackName = tweet.match(/(?=play:).+?(?=\s)/i)[0].substr(5)
-        if trackName.length
-          search = new models.Search(trackName)
-          search.observe models.EVENT.CHANGE, ->
-            if search.tracks.length
-              track = search.tracks[0]
-              return  if playlist.indexOf(track) >= 0
-              playlist.add track
-              models.player.play track, playlist, 0  if playlist.length is 1
-              html += "<li><ul class='inline'>"
-              html += "<li>" + image(track.image) + "</li>"
-              html += "<li class='track'><strong>" + track.name + "</strong><br />by " + track.artists[0].name + "</li>"
-              html += "<li>" + image(result.profile_image_url) + "</li>"
-              html += "<li class='user'><a href='http://twitter.com/" + result.from_user + "'>" + result.from_user_name + " (@" + result.from_user + ")" + "</a></li>"
-              html += "</ul></li>"
-            status.innerHTML = "<ul class='results'>" + html + "</ul>"
-            search.ignore models.EVENT.CHANGE
+    clearInterval interval if interval
+    interval = setInterval searchServices, 30*1000
+    searchServices()
+    toggle on
 
-          search.appendNext()
+  stopBtn.addEventListener "click", ->
+    clearInterval interval if interval
+    toggle off
 
-      xhr.onreadystatechange = null
+  toggle = (state) ->
+    listening = document.getElementById "listening"
+    display = if state then "block" else "none"
+    listening.style["display"] = display
 
-    xhr.send null
-image = (uri, width, height) ->
-  img = undefined
-  width = width or 50
-  height = height or 50
-  img = new Image(width, height)
-  img.src = uri
-  img.outerHTML
+  searchServices = ->
+    if input.value isnt lastQuery
+      playlist = new models.Playlist()
+      results.innerHTML = ''
+      lastQuery = input.value
 
+    for service in services
+      service.search input.value, (title, band, username, avatar_uri, fullname, profile_uri) ->
+        search.spotify title, band, (track) ->
+          return unless playlist.indexOf(track) < 0
+          playlist.add track
+          models.player.play track, playlist, 0 if playlist.length is 1 and !models.player.playing
+          entry = document.createElement('li')
+          html = "<ul class='inline'>"
+          html += "<li>#{helper.image(track.image)}</li>"
+          html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
+          html += "<li>#{helper.image(avatar_uri)}</li>"
+          html += "<li class='user'><a href='#{profile_uri}'>#{fullname} (@#{username})</a></li>"
+          html += "</ul>"
+          results.appendChild entry
+          entry.innerHTML = html
 exports.init = init
