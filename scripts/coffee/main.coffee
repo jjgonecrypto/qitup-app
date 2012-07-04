@@ -10,6 +10,7 @@ services = [twitter]
 init = ->
   lastQuery = undefined
   interval = undefined
+  playlist = undefined
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
