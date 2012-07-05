@@ -2,35 +2,59 @@ should = require "should"
 twitter = require "../scripts/coffee/twitter"
 
 describe "Twitter", ->
-
   global.XMLHttpRequest = () ->
-  global.XMLHttpRequest.prototype =
-    abort: () ->
-    readyState: 4
-    open: () ->
-    send: () -> setTimeout @onreadystatechange, 1
 
-  afterEach (done) ->
-    global.XMLHttpRequest.prototype.onreadystatechange = null
+  beforeEach (done) ->
+    global.XMLHttpRequest.prototype =
+      abort: () ->
+      readyState: 4
+      open: () ->
+      onreadystatechange: null
+      responseText: null
+      send: () -> @onreadystatechange()
     done()
 
-  it "should parse the song title from a tweet", (done) ->
+  afterEach (done) ->
+    twitter.reset()
+    done()
+
+
+  testPattern = (tweet, query, track, artist, done) ->
     global.XMLHttpRequest.prototype.responseText = '{"results": [{
-        "text": "play:where-the-wild #twimote"}
+        "text": "' + tweet + '", 
+        "id":' + Math.round(Math.random()*10000) + '}
       ]}'
 
-    twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
-      title.should.eql "where-the-wild"
-      should.not.exist band
+    twitter.search query, (title, band, username, avatar_uri, fullname, profile_uri) -> 
+      title.should.eql track if track
+      band.should.eql artist if artist 
+      should.not.exist title if !track
+      should.not.exist band if !artist
       done()
+
+  it "should parse the song title from a tweet as colon", (done) ->
+    testPattern "play:where-the-wild #twimote", "twimote", "where-the-wild", null, () ->
+      testPattern "i want to hear:where-the-wild #twimote", "twimote", "where-the-wild", null, () ->
+        testPattern "#twimote listen:where-the-wild", "twimote", "where-the-wild", null, () ->
+          testPattern "#twimote queue:johnson,_123", "twimote", "johnson,_123", null, () ->
+            done()
+
+  it "should parse the song title from a tweet as a dbl quoted string", (done) ->
+    testPattern "play \\\"where the wild\\\" at #twimote", "twimote", "\"where the wild\"", null, () ->
+      testPattern "i'd like to hear \\\"good, earth\\\" at #twimote today", "twimote", "\"good, earth\"", null, () ->
+        testPattern "twimote pls queue \\\"bottle!  12!\\\" ok? \\\"yes!\\\"", "twimote", "\"bottle!  12!\"", null, () ->
+          done()
+
+  it "should parse the artist name from a tweet as colon"
+
 
   it "should handle any order of play and by", (done) ->
     global.XMLHttpRequest.prototype.responseText = '{"results": [{
-        "text": "lorem ipsum idosyncraties #twimote by:nirvana-123 play:where-the-wild"}
+        "text": "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1"}
       ]}'
 
     twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
-      title.should.eql "where-the-wild"
+      title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
 
@@ -47,3 +71,7 @@ describe "Twitter", ->
       fullname.should.eql "name!"
       profile_uri.should.eql "http://twitter.com/#{username}"
       done()
+
+  it "should cache tweets within subsequent query"
+
+  it "should not used cached tweets between different queries"
