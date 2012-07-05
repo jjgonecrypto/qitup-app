@@ -3,13 +3,14 @@ spotify-tweet-control
 
 spotify app to control a playlist via a twitter hashtag
 
+<img src="http://i.imgur.com/orRhv.png" width="75%" />
 
-supported services
+
+currently supported services
 -----
 
 * twitter
 
-<img src="http://i.imgur.com/orRhv.png" width="75%" />
 
 how it works
 ------ 
