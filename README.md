@@ -9,7 +9,7 @@ supported services
 
 * twitter
 
-<img src="http://i.imgur.com/D8AAq.png" width="75%" />
+<img src="http://i.imgur.com/orRhv.png" width="75%" />
 
 how it works
 ------ 
