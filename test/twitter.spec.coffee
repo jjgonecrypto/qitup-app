@@ -45,8 +45,17 @@ describe "Twitter", ->
         testPattern "twimote pls queue \\\"bottle!  12!\\\" ok? \\\"yes!\\\"", "twimote", "\"bottle!  12!\"", null, () ->
           done()
 
-  it "should parse the artist name from a tweet as colon"
+  it "should parse the artist name from a tweet as colon", (done) ->
+    testPattern "will you queue:something-else by:bjorn at #twimote", "twimote", "something-else", "bjorn", () ->
+      testPattern "artist:take-that queue:something-else at #twimote", "twimote", "something-else", "take-that", () ->
+        testPattern "play \\\"something else\\\" at #twimote band:brian-jonestown", "twimote", "\"something else\"", "brian-jonestown", () ->
+          done()
 
+  it "should parse the artist name from a tweet as a dbl quoted string", (done) ->
+    testPattern "i want to hear \\\"we're the monkeys\\\", by \\\"The Monkeys\\\" at twimote", "twimote", "\"we're the monkeys\"", "\"The Monkeys\"", () ->
+      testPattern "band \\\"green day\\\" play \\\"time of your life\\\" at twimote", "twimote", "\"time of your life\"", "\"green day\"", () ->
+        testPattern "listen \\\"time of your life\\\" at twimote, artist \\\"Green day!\\\"", "twimote", "\"time of your life\"", "\"Green day!\"", () ->        
+          done()
 
   it "should handle any order of play and by", (done) ->
     global.XMLHttpRequest.prototype.responseText = '{"results": [{
