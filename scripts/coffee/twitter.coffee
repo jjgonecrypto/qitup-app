@@ -41,7 +41,7 @@ match = (tweet) ->
   for trackPrefix in trackPrefixes
     break if (track = matchColonSpace trackPrefix, tweet) 
     break if (track = matchQuotes trackPrefix, tweet)
-  return if !track
+  return {track: null, artist: null} if !track
 
   for artistPrefix in artistPrefixes
     break if (artist = matchColonSpace artistPrefix, tweet) 
