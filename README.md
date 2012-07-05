@@ -4,16 +4,64 @@ spotify-tweet-control
 spotify app to control a playlist via a twitter hashtag
 
 
-currently
---------
+supported services
+-----
 
-plays the most recent track preceeded by `play:` within any tweet that has the search term. the tracks must use dashes or underscores instead of spaces. eg.
+* twitter
 
-    i want to play:smells-like-teen-spirit #myhashtag 
 
-or 
+how it works
+------ 
 
-    play:where_is_my_mind #myhashtag 
+* upon submitting a search query, all services (currently only twitter) are searched for public statuses that match the search term.
+
+* for every found status:
+
+    * spotify is searched for the top matching track (from the supplied artist, if any)
+    
+    * if no track can be found, the request is ignored
+
+    * otherwise the top track is added to the on-the-fly playlist
+    
+* the playlist starts playing as soon as the first track has been added 
+
+* every 30s, the services will be polled. any new statuses that match will be appended to the current playlist. if not currently playing, the playlist will resume playing.
+
+
+matchers
+------ 
+
+tweets can use any of the following syntax (where #hashtag is the search term - note, the hash `#` itself is not required)
+
+* __TRACK__: keywords `play` OR `listen` OR `queue` OR `hear` followed by song names in double quotes ("song name")
+
+    egs. 
+
+        i want to hear "some song" today please! #hashtag
+
+        hey #hashtag you should play "some song"
+
+        queue "some song" at #hashtag 
+
+* [optional] __ARTIST__: keywords `by` OR `band` OR `artist` followed by artist name in double quotes ("band name") 
+
+    egs.
+
+        play "some song" by "some artist" #hashtag
+
+        can i hear "that awesome track" at #hashtag? artist "my favourite band"
+
+        queue "that song" by "that band" now! #hashtag
+
+    > using an __ARTIST__ selector will help better find a top track.  
+
+* [optional] instead of double quotes, any of the above can use colon and dashes (do:some-thing).
+
+    egs.
+
+        play:some-song by:some-artist #hashtag
+
+        can i hear:that-awesome-track, band:my-favourite-band at #hashtag
 
 
 installation
@@ -31,6 +79,7 @@ installation
 
 1. run `cake watch&` to start a background process to automatically convert `.coffee` to `.js` and `.styl` to `.css` whenver one of the source files is updated. 
 
+
 running 
 ------ 
 
@@ -39,3 +88,11 @@ running
 1. search for `spotify:app:twimote` (loads the app)
 
 1. enter in your search query and click "search". (note: hash `#` character is not required). lastest track should start to play.
+
+
+testing
+----- 
+
+1. ensure you have already run `npm install` 
+
+1. run `cake test` in the root folder to start the unit test suite
