@@ -49,6 +49,5 @@ match = (tweet) ->
 
   track: track, artist: artist 
 
-module.exports = 
-  search: search
-  reset: reset
+exports.search = search
+exports.reset = reset
