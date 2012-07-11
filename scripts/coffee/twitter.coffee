@@ -12,8 +12,13 @@ search = (query, next) ->
       return if cached query, result
       tweet = result.text
       {track, artist} = match tweet
-      next track, artist, result.from_user, result.profile_image_url, result.from_user_name
-      , "http://twitter.com/#{result.from_user}" if (track) 
+      if (track) 
+        next track, artist,
+          username: result.from_user_name
+          name: result.from_user
+          avatar_uri: result.profile_image_url
+          profile_uri: "http://twitter.com/#{result.from_user}" 
+      ###
   xhr.send()  
 
 cached = (query, tweet) -> 
