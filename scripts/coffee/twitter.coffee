@@ -4,10 +4,11 @@ tweetsByQuery = {}
 search = (query, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
-  xhr.open "GET", "http://search.twitter.com/search.json?q=" + query
+  xhr.open "GET", searchUri(query)
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
     data = JSON.parse(xhr.responseText)
+    setLastId query, data.max_id
     data.results.forEach (result) ->
       return if cached query, result
       tweet = result.text
@@ -16,11 +17,22 @@ search = (query, next) ->
       , "http://twitter.com/#{result.from_user}" if (track) 
   xhr.send()  
 
+searchUri = (query) ->
+  uri = "http://search.twitter.com/search.json?q=#{query}"
+  uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
+  uri
+
+setLastId = (query, last_id) ->
+  initCacheFor query
+  tweetsByQuery[query]?.last_id = last_id
+
 cached = (query, tweet) -> 
-  tweetsByQuery[query]?= {}
+  initCacheFor query 
   status = tweetsByQuery[query][tweet.id]?
   tweetsByQuery[query][tweet.id]?= tweet
   status
+
+initCacheFor = (query) -> tweetsByQuery[query]?= {}
 
 reset = -> 
   xhr.abort() if xhr
