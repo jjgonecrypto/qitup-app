@@ -18,7 +18,6 @@ search = (query, next) ->
           name: result.from_user
           avatar_uri: result.profile_image_url
           profile_uri: "http://twitter.com/#{result.from_user}" 
-      ###
   xhr.send()  
 
 cached = (query, tweet) -> 
