@@ -8,7 +8,7 @@ search = (query, next) ->
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
     data = JSON.parse(xhr.responseText)
-    setLastId query, data.max_id
+    setLastId query, data.max_id_str
     data.results.forEach (result) ->
       return if cached query, result
       tweet = result.text
