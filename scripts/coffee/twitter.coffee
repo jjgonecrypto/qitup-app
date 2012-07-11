@@ -7,7 +7,10 @@ search = (query, next) ->
   xhr.open "GET", searchUri(query)
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
-    data = JSON.parse(xhr.responseText)
+    try
+      data = JSON.parse(xhr.responseText)
+    catch err
+      return
     setLastId query, data.max_id_str
     data.results.forEach (result) ->
       return if cached query, result
