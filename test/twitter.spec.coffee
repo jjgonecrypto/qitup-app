@@ -60,7 +60,7 @@ describe "Twitter", ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
 
-    twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
+    twitter.search "twimote", (title, band, request) -> 
       title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
@@ -73,11 +73,11 @@ describe "Twitter", ->
           profile_image_url: "image", from_user_name: "name!"
         ]
 
-    twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
-      username.should.eql "user1"
-      avatar_uri.should.eql "image"
-      fullname.should.eql "name!"
-      profile_uri.should.eql "http://twitter.com/#{username}"
+    twitter.search "twimote", (title, band, request) -> 
+      request.username.should.eql "user1"
+      request.avatar_uri.should.eql "image"
+      request.fullname.should.eql "name!"
+      request.profile_uri.should.eql "http://twitter.com/#{request.username}"
       done()
 
   it "should emit searches for all found tweets", (done) ->

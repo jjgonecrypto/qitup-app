@@ -37,7 +37,7 @@ init = ->
       lastQuery = input.value
 
     for service in services
-      service.search input.value, (title, band, username, avatar_uri, fullname, profile_uri) ->
+      service.search input.value, (title, band, request) ->
         search.spotify title, band, (track) ->
           return unless playlist.indexOf(track) < 0
           playlist.add track
@@ -46,8 +46,8 @@ init = ->
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
           html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
-          html += "<li>#{helper.image(avatar_uri)}</li>"
-          html += "<li class='user'><a href='#{profile_uri}'>#{fullname} (@#{username})</a></li>"
+          html += "<li>#{helper.image(request.avatar_uri)}</li>"
+          html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a></li>"
           html += "</ul>"
           results.appendChild entry
           entry.innerHTML = html

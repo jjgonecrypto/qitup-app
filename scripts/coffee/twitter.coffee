@@ -18,8 +18,8 @@ search = (query, next) ->
       {track, artist} = match tweet
       if (track) 
         next track, artist,
-          username: result.from_user_name
-          name: result.from_user
+          username: result.from_user
+          fullname: result.from_user_name
           avatar_uri: result.profile_image_url
           profile_uri: "http://twitter.com/#{result.from_user}" 
   xhr.send()  
