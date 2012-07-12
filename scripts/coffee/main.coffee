@@ -31,6 +31,7 @@ init = ->
     listening.style["display"] = display
 
   searchServices = ->
+    position = 0
     if input.value isnt lastQuery
       playlist = new models.Playlist()
       results.innerHTML = ''
@@ -43,7 +44,7 @@ init = ->
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           return console.log "not queued - already in playlist" unless playlist.indexOf(track) < 0
           playlist.add track
-          models.player.play track, playlist, 0 if !models.player.playing
+          models.player.play track, playlist, position++ if !models.player.playing and position is 0
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
