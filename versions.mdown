@@ -1,0 +1,15 @@
+#releases
+
+##0.1 initial
+
+__july 5, 2012__
+
+* basic twitter hashtag search and polling functionality
+* search tracks and artists
+* allow for space/double quote and colon/dash syntax options
+
+###0.1.1 twitter refresh hotfix
+
+__july 12, 2012__
+
+* added hotfix that ensured new tweets being added (uses the `since_id` property in the twitter search api to both prevent old tweets loading and to ensure newer ones being caught properly).
