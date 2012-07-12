@@ -2,6 +2,12 @@ sp = getSpotifyApi 1
 
 models = sp.require "sp://import/scripts/api/models"
 
+models.session.observe models.EVENT.STATECHANGED, () ->
+  if models.session.state is 1 
+    console.log "online!"
+  else
+    console.log "disconnected :(" 
+
 spotify = (title, artist, done) ->
   query = "track:#{title}"
   query += " artist:#{artist}" if artist
