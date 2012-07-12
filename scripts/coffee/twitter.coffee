@@ -12,7 +12,7 @@ search = (query, next) ->
     catch err
       return
     setLastId query, data.max_id_str
-    data.results.forEach (result) ->
+    data.results.reverse().forEach (result) ->
       console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
       return console.log "cached - ignoring" if cached query, result
       tweet = result.text
