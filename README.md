@@ -1,7 +1,7 @@
 spotify-tweet-control
 =====================
 
-__version__: 0.1 (july 5, 2012)
+__version__: 0.1.1 (july 12, 2012)
 
 spotify app to control a playlist via a twitter hashtag
 
