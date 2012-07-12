@@ -9,7 +9,15 @@ spotify = (title, artist, done) ->
 
   search.observe models.EVENT.CHANGE, () ->
     search.ignore models.EVENT.CHANGE #remove listener
-    done search.tracks[0] if search.tracks.length
+    if search.tracks.length 
+      done search.tracks[0]
+    else 
+      console.log "no tracks found for #{title} by #{artist}" 
+
+  search.observe models.EVENT.LOAD_ERROR, (err) ->
+    search.ignore models.EVENT.LOAD_ERROR #remove listener
+    console.log "error searching spotify: ", err
+
   search.appendNext()
 
 exports.spotify = spotify
