@@ -38,8 +38,10 @@ init = ->
 
     for service in services
       service.search input.value, (title, band, request) ->
+        console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track) ->
-          return unless playlist.indexOf(track) < 0
+          console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
+          return console.log "not queued - already in playlist" unless playlist.indexOf(track) < 0
           playlist.add track
           models.player.play track, playlist, 0 if !models.player.playing
           entry = document.createElement('li')

@@ -13,7 +13,8 @@ search = (query, next) ->
       return
     setLastId query, data.max_id_str
     data.results.forEach (result) ->
-      return if cached query, result
+      console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
+      return console.log "cached - ignoring" if cached query, result
       tweet = result.text
       {track, artist} = match tweet
       if (track) 
@@ -21,7 +22,8 @@ search = (query, next) ->
           username: result.from_user
           fullname: result.from_user_name
           avatar_uri: result.profile_image_url
-          profile_uri: "http://twitter.com/#{result.from_user}" 
+          profile_uri: "http://twitter.com/#{result.from_user}"
+      else console.log "nothing matched." 
   xhr.send()  
 
 searchUri = (query) ->
