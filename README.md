@@ -8,6 +8,13 @@ spotify app to control a playlist via a twitter hashtag
 <img src="http://i.imgur.com/orRhv.png" width="75%" />
 
 
+use cases
+--------
+
+* soundtrack at a live event 
+* a playlist at the office
+* user allows friends/followers to program their current listening queue 
+
 currently supported services
 -----
 
