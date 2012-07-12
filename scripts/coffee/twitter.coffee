@@ -17,7 +17,7 @@ search = (query, next) ->
       return console.log "cached - ignoring" if cached query, result
       tweet = result.text
       {track, artist} = match tweet
-      if (track) 
+      if (track or artist) 
         next track, artist,
           username: result.from_user
           fullname: result.from_user_name
@@ -62,7 +62,6 @@ match = (tweet) ->
   for trackPrefix in trackPrefixes
     break if (track = matchColonSpace trackPrefix, tweet) 
     break if (track = matchQuotes trackPrefix, tweet)
-  return {track: null, artist: null} if !track
 
   for artistPrefix in artistPrefixes
     break if (artist = matchColonSpace artistPrefix, tweet) 

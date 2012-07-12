@@ -9,7 +9,8 @@ models.session.observe models.EVENT.STATECHANGED, () ->
     console.log "disconnected :(" 
 
 spotify = (title, artist, done) ->
-  query = "track:#{title}"
+  query = ""
+  query += " track:#{title}" if title
   query += " artist:#{artist}" if artist
   search = new models.Search query
 
