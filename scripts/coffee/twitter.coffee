@@ -55,7 +55,7 @@ match = (tweet) ->
     str.match(new RegExp("(?=#{field}:).+?(?=\\s|$)", "i"))?[0].substr(field.length + 1) or null
 
   matchQuotes = (field, str) ->
-    str.match(new RegExp("#{field}\\s(\"|“).+?(\"|”|$)", "i"))?[0].substr(field.length + 1) or null
+    str.match(new RegExp("#{field}\\s+(\"|“).+?(\"|”|$)", "i"))?[0].replace(new RegExp("^#{field}+\\s+(?=\"|“)", "i"), "") or null
 
   trackPrefixes = ['play','hear','listen','queue']
   artistPrefixes = ['by', 'artist', 'band']

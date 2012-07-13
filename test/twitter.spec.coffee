@@ -63,6 +63,14 @@ describe "Twitter", ->
       testPattern "play “hoochie mama” by \"2 live crew\" #twimote", "twimote", "“hoochie mama”", "\"2 live crew\"", () ->
         done()
 
+  it "should ignore whitespace between identifier and double quotes", (done) ->
+    testPattern "play     \"artist\"   by    \"xxyyxx\" #twimote", "twimote", "\"artist\"", "\"xxyyxx\"", () ->
+      done()
+
+  it "should handle empty track titles", (done) ->
+    testPattern "queue something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", () ->
+      done()
+
   it "should handle any order of play and by", (done) ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
