@@ -11,6 +11,7 @@ init = ->
   lastQuery = undefined
   interval = undefined
   playlist = undefined
+  playlistToSave = undefined
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
@@ -33,9 +34,10 @@ init = ->
   searchServices = ->
     position = 0
     if input.value isnt lastQuery
-      playlist = new models.Playlist()
-      results.innerHTML = ''
       lastQuery = input.value
+      playlist = new models.Playlist()
+      playlistToSave = new models.Playlist lastQuery #required to keep track of playlist 
+      results.innerHTML = ''
 
     for service in services
       service.search input.value, (title, band, request) ->
@@ -43,7 +45,7 @@ init = ->
         search.spotify title, band, (track) ->
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           return console.log "not queued - already in playlist" unless playlist.indexOf(track) < 0
-          playlist.add track
+          playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           entry = document.createElement('li')
           html = "<ul class='inline'>"
