@@ -48,7 +48,7 @@ init = ->
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
-          html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
+          html += "<li class='track'><a class='track-link' href=\"#{track.uri}\">#{track.name}</a><br />by <a href=\"#{track.artists[0].uri}\">#{track.artists[0].name}</a></li>"
           html += "<li>#{helper.image(request.avatar_uri)}</li>"
           html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />"
           html += "<div class='request-text'>#{request.text}</div></li>"
