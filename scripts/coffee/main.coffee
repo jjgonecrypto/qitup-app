@@ -11,6 +11,7 @@ init = ->
   lastQuery = undefined
   interval = undefined
   playlist = undefined
+  playlistToSave = undefined
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
@@ -31,23 +32,28 @@ init = ->
     listening.style["display"] = display
 
   searchServices = ->
+    position = 0
     if input.value isnt lastQuery
-      playlist = new models.Playlist()
-      results.innerHTML = ''
       lastQuery = input.value
+      playlist = new models.Playlist()
+      playlistToSave = new models.Playlist "twimote: " + lastQuery #required to keep track of playlist 
+      results.innerHTML = ''
 
     for service in services
-      service.search input.value, (title, band, username, avatar_uri, fullname, profile_uri) ->
+      service.search input.value, (title, band, request) ->
+        console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track) ->
-          return unless playlist.indexOf(track) < 0
-          playlist.add track
-          models.player.play track, playlist, 0 if !models.player.playing
+          console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
+          return console.log "not queued - already in playlist" unless playlist.indexOf(track) < 0
+          playlist.add(track) and playlistToSave.add(track)
+          models.player.play track, playlist, position++ if !models.player.playing and position is 0
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
-          html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
-          html += "<li>#{helper.image(avatar_uri)}</li>"
-          html += "<li class='user'><a href='#{profile_uri}'>#{fullname} (@#{username})</a></li>"
+          html += "<li class='track'><a class='track-link' href=\"#{track.uri}\">#{track.name}</a><br />by <a href=\"#{track.artists[0].uri}\">#{track.artists[0].name}</a></li>"
+          html += "<li>#{helper.image(request.avatar_uri)}</li>"
+          html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />"
+          html += "<div class='request-text'>#{request.text}</div></li>"
           html += "</ul>"
           results.appendChild entry
           entry.innerHTML = html
