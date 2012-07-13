@@ -23,6 +23,7 @@ search = (query, next) ->
           fullname: result.from_user_name
           avatar_uri: result.profile_image_url
           profile_uri: "http://twitter.com/#{result.from_user}"
+          text: tweet
       else console.log "nothing matched." 
   xhr.send()  
 

@@ -50,7 +50,8 @@ init = ->
           html += "<li>#{helper.image(track.image)}</li>"
           html += "<li class='track'><strong>#{track.name}</strong><br />by #{track.artists[0].name}</li>"
           html += "<li>#{helper.image(request.avatar_uri)}</li>"
-          html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a></li>"
+          html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />"
+          html += "<div class='request-text'>#{request.text}</div></li>"
           html += "</ul>"
           results.appendChild entry
           entry.innerHTML = html
