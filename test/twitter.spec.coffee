@@ -19,10 +19,12 @@ describe "Twitter", ->
     twitter.reset()
     done()
 
+  setResponse = (results) ->
+    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
+      results: results
 
   testPattern = (tweet, query, track, artist, done) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results: [ text: tweet, id: Math.round(Math.random()*10000) ]
+    setResponse [ text: tweet, id: Math.round(Math.random()*10000) ]
 
     twitter.search query, (title, band, username, avatar_uri, fullname, profile_uri) -> 
       title.should.eql track if track
@@ -56,40 +58,51 @@ describe "Twitter", ->
         testPattern "listen \"time of your life\" at twimote, artist \"Green day!\"", "twimote", "\"time of your life\"", "\"Green day!\"", () ->        
           done()
 
+  it "should parse lh and rh double quote strings", (done) ->
+    testPattern "play “hoochie mama” by “2 live crew” #twimote", "twimote", "“hoochie mama”", "“2 live crew”", () ->
+      testPattern "play “hoochie mama” by \"2 live crew\" #twimote", "twimote", "“hoochie mama”", "\"2 live crew\"", () ->
+        done()
+
+  it "should ignore whitespace between identifier and double quotes", (done) ->
+    testPattern "play     \"artist\"   by    \"xxyyxx\" #twimote", "twimote", "\"artist\"", "\"xxyyxx\"", () ->
+      done()
+
+  it "should handle empty track titles", (done) ->
+    testPattern "queue something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", () ->
+      done()
+
   it "should handle any order of play and by", (done) ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
 
-    twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
+    twitter.search "twimote", (title, band, request) -> 
       title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
 
   it "should return full tweet details", (done) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:where-the-wild #twimote", from_user: "user1", 
-          profile_image_url: "image", from_user_name: "name!"
-        ]
+    setResponse [ 
+      text: "play:where-the-wild #twimote"
+      from_user: "user1", 
+      profile_image_url: "image"
+      from_user_name: "name!"
+    ]
 
-    twitter.search "twimote", (title, band, username, avatar_uri, fullname, profile_uri) -> 
-      username.should.eql "user1"
-      avatar_uri.should.eql "image"
-      fullname.should.eql "name!"
-      profile_uri.should.eql "http://twitter.com/#{username}"
+    twitter.search "twimote", (title, band, request) -> 
+      request.username.should.eql "user1"
+      request.avatar_uri.should.eql "image"
+      request.fullname.should.eql "name!"
+      request.profile_uri.should.eql "http://twitter.com/#{request.username}"
       done()
 
   it "should emit searches for all found tweets", (done) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:song1 by:band1 twimote", id: 1
-        ,
-          text: "play:song2 by:band2 twimote", id: 2
-        ,
-          text: "play:song3 by:band3 twimote", id: 3 
-        ]
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1
+    ,
+      text: "play:song2 by:band2 twimote", id: 2
+    ,
+      text: "play:song3 by:band3 twimote", id: 3 
+    ]
 
     callback = sinon.spy()
     twitter.search "twimote", callback    
@@ -100,24 +113,20 @@ describe "Twitter", ->
     done()
 
   it "should cache tweets within subsequent query", (done) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:song1 by:band1 twimote", id: 1
-        ,
-          text: "play:song2 by:band2 twimote", id: 2
-        ]
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1
+    ,
+      text: "play:song2 by:band2 twimote", id: 2
+    ]
 
     twitter.search "twimote", () -> 
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:song1 by:band1 twimote", id: 1
-        ,
-          text: "play:song2 by:band2 twimote", id: 2
-        ,
-          text: "play:song3 by:band3 twimote", id: 3 
-        ]
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1
+    ,
+      text: "play:song2 by:band2 twimote", id: 2
+    ,
+      text: "play:song3 by:band3 twimote", id: 3 
+    ]
 
     callback = sinon.spy()
     twitter.search "twimote", callback    
@@ -126,24 +135,20 @@ describe "Twitter", ->
     done()
 
   it "should not used cached tweets between different queries", (done) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:song1 by:band1 twimote", id: 1
-        ,
-          text: "play:song2 by:band2 twimote", id: 2
-        ]
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1
+    ,
+      text: "play:song2 by:band2 twimote", id: 2
+    ]
 
     twitter.search "otherquery", () -> 
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results:
-        [ 
-          text: "play:song1 by:band1 twimote", id: 1
-        ,
-          text: "play:song2 by:band2 twimote", id: 2
-        ,
-          text: "play:song3 by:band3 twimote", id: 3 
-        ]
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1
+    ,
+      text: "play:song2 by:band2 twimote", id: 2
+    ,
+      text: "play:song3 by:band3 twimote", id: 3 
+    ]
 
     callback = sinon.spy()
     twitter.search "twimote", callback    

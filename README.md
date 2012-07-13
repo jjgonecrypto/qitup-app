@@ -1,12 +1,19 @@
 spotify-tweet-control
 =====================
 
-__version__: 0.1.1 (july 12, 2012)
+__version__: 0.2 (july 13, 2012)
 
 spotify app to control a playlist via a twitter hashtag
 
-<img src="http://i.imgur.com/orRhv.png" width="75%" />
+<img src="http://i.imgur.com/xPrr4.png" width="75%" />
 
+
+use cases
+--------
+
+* soundtrack at a live event 
+* a playlist at the office
+* user allows friends/followers to program their current gilistening queue 
 
 currently supported services
 -----
@@ -67,6 +74,8 @@ tweets can use any of the following syntax (where #hashtag is the search term - 
 
         can i hear:that-awesome-track, band:my-favourite-band at #hashtag
 
+
+> while better results come from more exact searches, a match will likely fail completely if the query is overspecific and incorrect. oftentimes, it is best just to include the keywords that are known to exist in the song and/or artist. for example, `play "xyu" by "the smashing pumpkins"` will fail because although Spotify can translate `xyu` into `X.Y.U.` it cannot (currently) translate `the smashing pumpkins` into `smashing pumpkins`. when faced with querying, it's better to err on the side of simplicity.    
 
 installation
 -------

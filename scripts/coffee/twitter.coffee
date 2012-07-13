@@ -12,12 +12,19 @@ search = (query, next) ->
     catch err
       return
     setLastId query, data.max_id_str
-    data.results.forEach (result) ->
-      return if cached query, result
+    data.results.reverse().forEach (result) ->
+      console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
+      return console.log "cached - ignoring" if cached query, result
       tweet = result.text
       {track, artist} = match tweet
-      next track, artist, result.from_user, result.profile_image_url, result.from_user_name
-      , "http://twitter.com/#{result.from_user}" if (track) 
+      if (track or artist) 
+        next track, artist,
+          username: result.from_user
+          fullname: result.from_user_name
+          avatar_uri: result.profile_image_url
+          profile_uri: "http://twitter.com/#{result.from_user}"
+          text: tweet
+      else console.log "nothing matched." 
   xhr.send()  
 
 searchUri = (query) ->
@@ -48,7 +55,7 @@ match = (tweet) ->
     str.match(new RegExp("(?=#{field}:).+?(?=\\s|$)", "i"))?[0].substr(field.length + 1) or null
 
   matchQuotes = (field, str) ->
-    str.match(new RegExp("#{field}\\s\".+?\"|$", "i"))?[0].substr(field.length + 1) or null
+    str.match(new RegExp("#{field}\\s+(\"|“).+?(\"|”|$)", "i"))?[0].replace(new RegExp("^#{field}+\\s+(?=\"|“)", "i"), "") or null
 
   trackPrefixes = ['play','hear','listen','queue']
   artistPrefixes = ['by', 'artist', 'band']
@@ -56,7 +63,6 @@ match = (tweet) ->
   for trackPrefix in trackPrefixes
     break if (track = matchColonSpace trackPrefix, tweet) 
     break if (track = matchQuotes trackPrefix, tweet)
-  return {track: null, artist: null} if !track
 
   for artistPrefix in artistPrefixes
     break if (artist = matchColonSpace artistPrefix, tweet) 
