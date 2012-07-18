@@ -1,35 +1,51 @@
 sp = getSpotifyApi 1
 
 auth = sp.require "sp://import/scripts/api/auth"
-api = sp.require "/scripts/js/service-keys"
+keys = sp.require "/scripts/js/service-keys"
 jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5.min"
 jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 
 xhr = undefined
-oauth = undefined
+api = undefined
 
 tweetsByQuery = {}
 
+parseUri = (uri, key) ->
+  uri.match(new RegExp("#{key}=.+?(?=$|&)"))[0].substr("#{key}=".length)
+
 authenticate = (done) ->
-  twitterAPI = jsOAuth.OAuth
-    consumerKey: api.twitter.consumerKey
-    consumerSecret: api.twitter.consumerSecret
-    authTokenKey: api.twitter.authTokenKey
-    authTokenSecret: api.twitter.authTokenSecret
+  oauth = undefined
+
+  api = jsOAuth.OAuth
+    consumerKey: keys.twitter.consumerKey
+    consumerSecret: keys.twitter.consumerSecret
+    authTokenKey: keys.twitter.authTokenKey
+    authTokenSecret: keys.twitter.authTokenSecret
     callbackUrl: 'http://qitup.fm'
 
-  twitterAPI.post 'https://api.twitter.com/oauth/request_token', {}
+  result = (response, err) ->
+    api.status = response? and (err is undefined or err is null)
+    done response, err
+
+  api.post 'https://api.twitter.com/oauth/request_token', {}
   , (data) -> 
-    console.log "token OK: ", oauth = twitterAPI.parseTokenRequest data
+    console.log "token OK: ", oauth = api.parseTokenRequest data
     auth.showAuthenticationDialog "https://api.twitter.com/oauth/authorize?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
       onSuccess: (response) ->
-        return oauth.status = false and done(null, "user access denied.") if response.indexOf("?denied=#{oauth.oauth_token}") >= 0
-        oauth.status = true
-        done response
+        return api.status = false and done(null, "user access denied.") if response.indexOf("?denied=#{oauth.oauth_token}") >= 0 
+        api.setAccessToken oauth.oauth_token, oauth.oauth_token_secret
+        api.post "https://api.twitter.com/oauth/access_token",
+          oauth_verifier: parseUri response, "oauth_verifier"
+        , (data) ->
+          console.log "twitter authenticated!", data
+          api.setAccessToken parseUri(data.text, "oauth_token"), parseUri(data.text, "oauth_token_secret")
+          result data
+        , (err) ->
+          result null, err
       onFailure: (err) ->
-        return oauth.status = false and done null, err
+        result null, err
   , (err) -> 
-    return oauth.status = false and done null, err
+    result null, err
 
 search = (query, next) ->
   xhr.abort() if xhr
@@ -63,8 +79,14 @@ searchUri = (query) ->
   uri
 
 message = (tweet, text, reply_to_id) ->
-  return unless oauth.status
+  return console.log "no twitterauth" unless api?.status
   console.log tweet, text
+  api.post "https://api.twitter.com/1/statuses/update.json", 
+    status: "@#{tweet.username} #{text}"
+  , (data) ->
+    console.log "successful reply: ", data
+  , (err) ->
+    console.log "error tweeting", err
 
 setLastId = (query, last_id) ->
   initCacheFor query
