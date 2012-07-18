@@ -1,20 +1,17 @@
 {
 	"AppDescription": {
-		"en": "Controlling a playlist via twitter hashtags"
-	},
-	"AppIcon": {
-		"36x18": "tutorial.png"
+		"en": "Stream live playlists via a hashtag"
 	},
 	"AppName": {
-		"en": "twimote"
+		"en": "Queue It Up"
 	},
-	"BundleIdentifier": "twimote",
+	"BundleIdentifier": "qitup",
 	"BundleType": "Application",
 	"BundleVersion": "0.1",
 	
 	"RequiredInterface": 1,
 	"RequiredPermissions": [
-	    "http://api.twitter.com",
+	    "https://api.twitter.com",
 	    "http://search.twitter.com",
 	    "http://a0.twimg.com"
 	],

@@ -1,3 +1,7 @@
+sp = getSpotifyApi 1
+
+apis = sp.require "/scripts/js/service-keys"
+
 xhr = undefined
 tweetsByQuery = {}
 
@@ -31,6 +35,10 @@ searchUri = (query) ->
   uri = "http://search.twitter.com/search.json?q=#{query}"
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
+
+message = (text, reply_to_id) ->
+  #todo
+  alert text
 
 setLastId = (query, last_id) ->
   initCacheFor query
@@ -72,3 +80,5 @@ match = (tweet) ->
 
 exports.search = search
 exports.reset = reset
+exports.api = apis.twitter
+exports.message = message
