@@ -1,9 +1,6 @@
 sp = getSpotifyApi 1
 
 models = sp.require "sp://import/scripts/api/models"
-auth = sp.require "sp://import/scripts/api/auth"
-jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5.min"
-jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 helper = sp.require "/scripts/js/helper"
 twitter = sp.require "/scripts/js/twitter"
 
@@ -20,7 +17,6 @@ init = ->
   stopBtn = document.getElementById "stop"
   results = document.getElementById "results"
   twitterBtn = document.getElementById "twitter-btn"
-  oauth = undefined
 
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -33,27 +29,9 @@ init = ->
     toggle off
 
   twitterBtn.addEventListener "click", ->
-
-    twitterAuth = jsOAuth.OAuth
-      consumerKey: twitter.api.consumerKey
-      consumerSecret: twitter.api.consumerSecret
-      authTokenKey: twitter.api.authTokenKey
-      authTokenSecret: twitter.api.authTokenSecret
-      callbackUrl: 'http://qitup.fm'
-    
-    twitterAuth.post 'https://api.twitter.com/oauth/request_token', {}
-    , (data) -> 
-      console.log "token OK: ", oauth = twitterAuth.parseTokenRequest data
-      auth.showAuthenticationDialog "https://api.twitter.com/oauth/authorize?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
-        onSuccess: (response) ->
-          return console.log "denied " if response.indexOf("?denied=#{oauth.oauth_token}") >= 0
-          console.log "success: ", response
-        onFailure: (error) ->
-          console.log "error: ", error
-        onComplete: () ->
-          console.log "done"
-    , (err) -> 
-      console.log "err ", err
+    twitter.authenticate (response, err) ->
+      return console.log("err: ", err) if err
+      console.log response
 
   toggle = (state) ->
     listening = document.getElementById "listening"
@@ -71,9 +49,12 @@ init = ->
     for service in services
       service.search input.value, (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
-        search.spotify title, band, (track) ->
+        search.spotify title, band, (track, notFound) ->
+          return service.message request, "sorry, couldn't find #{title} by #{band}" if notFound
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
-          return console.log "not queued - already in playlist" unless playlist.indexOf(track) < 0
+          if playlist.indexOf(track) >= 0
+            service.message request, "thanks for the request but #{track.name} has already been played in this playlist"
+            return console.log "not queued - already in playlist" 
           playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           entry = document.createElement('li')

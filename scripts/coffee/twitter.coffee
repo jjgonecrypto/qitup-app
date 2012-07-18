@@ -1,9 +1,35 @@
 sp = getSpotifyApi 1
 
-apis = sp.require "/scripts/js/service-keys"
+auth = sp.require "sp://import/scripts/api/auth"
+api = sp.require "/scripts/js/service-keys"
+jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5.min"
+jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 
 xhr = undefined
+oauth = undefined
+
 tweetsByQuery = {}
+
+authenticate = (done) ->
+  twitterAPI = jsOAuth.OAuth
+    consumerKey: api.twitter.consumerKey
+    consumerSecret: api.twitter.consumerSecret
+    authTokenKey: api.twitter.authTokenKey
+    authTokenSecret: api.twitter.authTokenSecret
+    callbackUrl: 'http://qitup.fm'
+
+  twitterAPI.post 'https://api.twitter.com/oauth/request_token', {}
+  , (data) -> 
+    console.log "token OK: ", oauth = twitterAPI.parseTokenRequest data
+    auth.showAuthenticationDialog "https://api.twitter.com/oauth/authorize?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
+      onSuccess: (response) ->
+        return oauth.status = false and done(null, "user access denied.") if response.indexOf("?denied=#{oauth.oauth_token}") >= 0
+        oauth.status = true
+        done response
+      onFailure: (err) ->
+        return oauth.status = false and done null, err
+  , (err) -> 
+    return oauth.status = false and done null, err
 
 search = (query, next) ->
   xhr.abort() if xhr
@@ -36,9 +62,9 @@ searchUri = (query) ->
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
-message = (text, reply_to_id) ->
-  #todo
-  alert text
+message = (tweet, text, reply_to_id) ->
+  return unless oauth.status
+  console.log tweet, text
 
 setLastId = (query, last_id) ->
   initCacheFor query
@@ -80,5 +106,5 @@ match = (tweet) ->
 
 exports.search = search
 exports.reset = reset
-exports.api = apis.twitter
+exports.authenticate = authenticate
 exports.message = message
