@@ -5,10 +5,15 @@
 	"AppName": {
 		"en": "Queue It Up"
 	},
+	"AppIcon": [
+		{"36x18": "./icon.png"},
+		{"64x64": "./icon.png"},
+		{"128x128": "./icon.png"}
+	],
+	"AppURL": "http://qitup.fm",
 	"BundleIdentifier": "qitup",
 	"BundleType": "Application",
 	"BundleVersion": "0.1",
-	
 	"RequiredInterface": 1,
 	"RequiredPermissions": [
 	    "https://api.twitter.com",
