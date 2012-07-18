@@ -1,11 +1,13 @@
 should = require "should"
 sinon = require "sinon"
+global.getSpotifyApi = () -> require: (module) -> require "../#{module}" if (module.indexOf "sp://") < 0 
+global.XMLHttpRequest = () ->
 twitter = require "../scripts/coffee/twitter"
 
 describe "Twitter", ->
-  global.XMLHttpRequest = () ->
 
   beforeEach (done) ->
+    
     global.XMLHttpRequest.prototype =
       abort: () ->
       readyState: 4
