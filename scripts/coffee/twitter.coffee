@@ -39,7 +39,9 @@ authenticate = (done) ->
         , (data) ->
           console.log "twitter authenticated!", data
           api.setAccessToken parseUri(data.text, "oauth_token"), parseUri(data.text, "oauth_token_secret")
-          result data
+          result 
+            user_id: parseUri(data.text, "user_id")
+            screen_name: parseUri(data.text, "screen_name")
         , (err) ->
           result null, err
       onFailure: (err) ->
@@ -70,6 +72,7 @@ search = (query, next) ->
           avatar_uri: result.profile_image_url
           profile_uri: "http://twitter.com/#{result.from_user}"
           text: tweet
+          id: result.id_str
       else console.log "nothing matched." 
   xhr.send()  
 
@@ -83,6 +86,7 @@ message = (tweet, text, reply_to_id) ->
   console.log tweet, text
   api.post "https://api.twitter.com/1/statuses/update.json", 
     status: "@#{tweet.username} #{text}"
+    in_reply_to_status_id: reply_to_id
   , (data) ->
     console.log "successful reply: ", data
   , (err) ->

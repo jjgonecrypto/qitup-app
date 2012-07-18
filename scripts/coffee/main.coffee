@@ -17,6 +17,7 @@ init = ->
   stopBtn = document.getElementById "stop"
   results = document.getElementById "results"
   twitterBtn = document.getElementById "twitter-btn"
+  twitterText = document.getElementById "twitter-user"
 
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -32,6 +33,7 @@ init = ->
     twitter.authenticate (response, err) ->
       return console.log("err: ", err) if err
       console.log response
+      twitterText.innerHTML = "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
 
   toggle = (state) ->
     listening = document.getElementById "listening"
@@ -50,14 +52,16 @@ init = ->
       service.search input.value, (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->
-          return service.message request, "sorry, couldn't find #{title} by #{band}" if notFound
+          pretty = () => (if title then "\"#{title}\"" else "anything") + (if band then " by #{band}" else "")
+
+          return service.message request, "sorry, couldn't find #{pretty()}. pls try again", request.id if notFound
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           if playlist.indexOf(track) >= 0
-            service.message request, "thanks for the request but #{track.name} has already been played in this playlist"
+            service.message request, "thanks for the request but \"#{track.name}\" has already been played in this playlist", request.id
             return console.log "not queued - already in playlist" 
           playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
-          service.message request, "thanks! we queued up \"#{track.name}\" by \"#{track.artists[0].name}\" for you."
+          service.message request, "thanks! we queued up \"#{track.name}\" by \"#{track.artists[0].name}\"", request.id
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"
