@@ -159,3 +159,7 @@ describe "Twitter", ->
     sinon.assert.calledWith(callback, "song2", "band2")
     sinon.assert.calledWith(callback, "song3", "band3")
     done()
+
+  it "should perform 3-legged authentication with twitter"
+
+  it "should message users via twitter API"
