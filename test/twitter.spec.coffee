@@ -215,6 +215,10 @@ describe "Twitter", ->
       global.XMLHttpRequest.prototype.setRequestHeader = (name, header) -> 
         if name is "Authorization"
           header.indexOf("oauth_token=\"#{access_token}\"").should.be.above(0) 
+      global.XMLHttpRequest.prototype.send = (data) -> 
+        data.indexOf("in_reply_to_status_id=#{tweet.id}").should.be.above(-1)
+        @onreadystatechange()
+
       twitter.message tweet, text, (err, data) ->
         throw err if err 
         done()
