@@ -52,7 +52,7 @@ init = ->
       service.search input.value, (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->
-          pretty = () => (if title then "\"#{title}\"" else "anything") + (if band then " by #{band}" else "")
+          pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
 
           return service.message request, "sorry, couldn't find #{pretty()}. pls try again" if notFound
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
