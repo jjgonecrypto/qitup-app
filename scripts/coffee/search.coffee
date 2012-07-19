@@ -20,6 +20,7 @@ spotify = (title, artist, done) ->
       done search.tracks[0]
     else 
       console.log "no tracks found for: #{query}" 
+      done null, true
 
   search.observe models.EVENT.LOAD_ERROR, (err) ->
     search.ignore models.EVENT.LOAD_ERROR #remove listener
