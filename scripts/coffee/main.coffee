@@ -54,14 +54,14 @@ init = ->
         search.spotify title, band, (track, notFound) ->
           pretty = () => (if title then "\"#{title}\"" else "anything") + (if band then " by #{band}" else "")
 
-          return service.message request, "sorry, couldn't find #{pretty()}. pls try again", request.id if notFound
+          return service.message request, "sorry, couldn't find #{pretty()}. pls try again" if notFound
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           if playlist.indexOf(track) >= 0
-            service.message request, "thanks for the request but \"#{track.name}\" has already been played in this playlist", request.id
+            service.message request, "thanks for the request but \"#{track.name}\" has already been played in this playlist"
             return console.log "not queued - already in playlist" 
           playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
-          service.message request, "thanks! we queued up \"#{track.name}\" by \"#{track.artists[0].name}\"", request.id
+          service.message request, "thanks! we queued up \"#{track.name}\" by \"#{track.artists[0].name}\""
           entry = document.createElement('li')
           html = "<ul class='inline'>"
           html += "<li>#{helper.image(track.image)}</li>"

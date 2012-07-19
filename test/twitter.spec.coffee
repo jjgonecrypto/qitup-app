@@ -1,20 +1,27 @@
 should = require "should"
 sinon = require "sinon"
-global.getSpotifyApi = () -> require: (module) -> require "../#{module}" if (module.indexOf "sp://") < 0 
+
+auth = {}
+global.getSpotifyApi = () -> 
+  require: (module) -> 
+    return require "../#{module}" unless (module.indexOf "sp://") is 0
+    if module is "sp://import/scripts/api/auth" then auth else {}
 global.XMLHttpRequest = () ->
+
 twitter = require "../scripts/coffee/twitter"
 
 describe "Twitter", ->
 
   beforeEach (done) ->
-    
     global.XMLHttpRequest.prototype =
       abort: () ->
       readyState: 4
       open: () ->
+      status: 200
       onreadystatechange: null
       responseText: null
       send: () -> @onreadystatechange()
+      setRequestHeader: () ->
     done()
 
   afterEach (done) ->
@@ -160,6 +167,54 @@ describe "Twitter", ->
     sinon.assert.calledWith(callback, "song3", "band3")
     done()
 
-  it "should perform 3-legged authentication with twitter"
+  oauth_token = "A123"
+  oauth_secret = "BX99"
+  oauth_verifier = "53D1"
+  access_token = "67D32"
+  access_secret = "871EF"
+  screen_name = "justin"
+  user_id = "123"
 
-  it "should message users via twitter API"
+  twitterSignIn = (callback, deny) ->
+
+    global.XMLHttpRequest.prototype.responseText = "oauth_token=#{oauth_token}&oauth_secret=#{oauth_secret}&oauth_callback_confirmed=true"
+
+    auth.showAuthenticationDialog = (uri, callback_uri, actions) ->
+      uri.should.eql "https://api.twitter.com/oauth/authorize?oauth_token=#{oauth_token}"
+      callback_uri.should.eql "http://qitup.fm"
+      global.XMLHttpRequest.prototype.send = () ->
+        @responseText = "?oauth_token=#{access_token}&oauth_token_secret=#{access_secret}&user_id=#{user_id}&screen_name=#{screen_name}"
+        @onreadystatechange()
+      if deny then actions.onSuccess "?denied=#{oauth_token}" else actions.onSuccess "?oauth_verifier=#{oauth_verifier}"
+
+    twitter.authenticate (response, err) ->
+      if deny
+        err.should.not.eql null
+        return callback()
+
+      throw err if err
+      twitter.logged_in().should.eql true
+      response.screen_name.should.eql screen_name
+      response.user_id.should.eql user_id
+      
+      callback()
+
+  it "should perform 3-legged authentication with twitter", (done) ->
+    twitterSignIn done 
+
+  it "should perform throw error if auth is denied by user", (done) ->
+    twitterSignIn done, true    
+
+  it "should message users via twitter API with correct access token and secret", (done) ->
+    tweet = 
+      id: "12345"
+      username: "justin"
+    text = "thanks!"
+
+    twitterSignIn () ->
+      global.XMLHttpRequest.prototype.setRequestHeader = (name, header) -> 
+        if name is "Authorization"
+          header.indexOf("oauth_token=\"#{access_token}\"").should.be.above(0) 
+      twitter.message tweet, text, (err, data) ->
+        throw err if err 
+        done()

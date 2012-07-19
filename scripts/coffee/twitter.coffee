@@ -2,7 +2,7 @@ sp = getSpotifyApi 1
 
 auth = sp.require "sp://import/scripts/api/auth"
 keys = sp.require "/scripts/js/service-keys"
-jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5.min"
+jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5"
 jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 
 xhr = undefined
@@ -11,7 +11,7 @@ api = undefined
 tweetsByQuery = {}
 
 parseUri = (uri, key) ->
-  uri.match(new RegExp("#{key}=.+?(?=$|&)"))[0].substr("#{key}=".length)
+  uri.match(new RegExp("#{key}=.+?(?=$|&)"))?[0].substr("#{key}=".length) ? console.log("no match for #{key}!")
 
 authenticate = (done) ->
   oauth = undefined
@@ -29,15 +29,18 @@ authenticate = (done) ->
 
   api.post 'https://api.twitter.com/oauth/request_token', {}
   , (data) -> 
-    console.log "token OK: ", oauth = api.parseTokenRequest data
+    console.log "token OK."
+    oauth = api.parseTokenRequest data
     auth.showAuthenticationDialog "https://api.twitter.com/oauth/authorize?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
       onSuccess: (response) ->
-        return api.status = false and done(null, "user access denied.") if response.indexOf("?denied=#{oauth.oauth_token}") >= 0 
+        if response.indexOf("?denied=#{oauth.oauth_token}") >= 0 
+          api.status = false
+          return done(null, "user access denied.") 
         api.setAccessToken oauth.oauth_token, oauth.oauth_token_secret
         api.post "https://api.twitter.com/oauth/access_token",
           oauth_verifier: parseUri response, "oauth_verifier"
         , (data) ->
-          console.log "twitter authenticated!", data
+          console.log "twitter authenticated."
           api.setAccessToken parseUri(data.text, "oauth_token"), parseUri(data.text, "oauth_token_secret")
           result 
             user_id: parseUri(data.text, "user_id")
@@ -81,16 +84,20 @@ searchUri = (query) ->
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
-message = (tweet, text, reply_to_id) ->
+logged_in = () -> api.status is true
+
+message = (tweet, text, done) ->
   return console.log "no twitterauth" unless api?.status
   console.log tweet, text
   api.post "https://api.twitter.com/1/statuses/update.json", 
     status: "@#{tweet.username} #{text}"
-    in_reply_to_status_id: reply_to_id
+    in_reply_to_status_id: tweet.id
   , (data) ->
-    console.log "successful reply: ", data
+    console.log "tweet sent successfully."
+    done null, data if done
   , (err) ->
     console.log "error tweeting", err
+    done err if done
 
 setLastId = (query, last_id) ->
   initCacheFor query
@@ -133,4 +140,5 @@ match = (tweet) ->
 exports.search = search
 exports.reset = reset
 exports.authenticate = authenticate
+exports.logged_in = logged_in
 exports.message = message
