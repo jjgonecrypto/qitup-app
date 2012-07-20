@@ -45,7 +45,7 @@ init = ->
     if input.value isnt lastQuery
       lastQuery = input.value
       playlist = new models.Playlist()
-      playlistToSave = new models.Playlist "twimote: " + lastQuery #required to keep track of playlist 
+      playlistToSave = new models.Playlist "QItUp: " + lastQuery #required to keep track of playlist 
       results.innerHTML = ''
 
     for service in services
