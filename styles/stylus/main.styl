@@ -13,8 +13,8 @@ ul.results
   > li
     margin 0.3em 0px
     vertical-align middle
-    border-top 1px solid #666
-    border-bottom 1px solid #333
+    &:nth-child(odd)
+      background-color: #DDD
   li 
     vertical-align middle
   li.track
@@ -27,7 +27,7 @@ ul.results
     > a
       color #0099cc
   .request-text
-    opacity 0.6
+    opacity 0.9
     max-width 23em
 
 #listening
