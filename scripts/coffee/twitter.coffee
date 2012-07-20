@@ -19,8 +19,6 @@ authenticate = (done) ->
   api = jsOAuth.OAuth
     consumerKey: keys.twitter.consumerKey
     consumerSecret: keys.twitter.consumerSecret
-    authTokenKey: keys.twitter.authTokenKey
-    authTokenSecret: keys.twitter.authTokenSecret
     callbackUrl: 'http://qitup.fm'
 
   result = (response, err) ->
