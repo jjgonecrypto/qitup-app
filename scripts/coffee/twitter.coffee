@@ -80,7 +80,7 @@ search = (query, next) ->
   xhr.send()  
 
 searchUri = (query) ->
-  uri = "http://search.twitter.com/search.json?q=#{query}"
+  uri = "http://search.twitter.com/search.json?rpp=100&q=#{query}"
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
