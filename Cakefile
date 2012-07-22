@@ -12,4 +12,4 @@ task 'watch', 'Watch source files and build JS & CSS', (options) ->
   runCommand 'stylus', '-w', 'styles/stylus', '-o', 'styles/css'
 
 task 'test', 'Run the testing suite', (options) ->
-  runCommand 'mocha', '--compilers', 'coffee:coffee-script', '--colors'
+  runCommand './node_modules/mocha/bin/mocha', '--compilers', 'coffee:coffee-script', '--colors'
