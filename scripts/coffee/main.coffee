@@ -12,6 +12,8 @@ init = ->
   interval = undefined
   playlist = undefined
   playlistToSave = undefined
+  from_date = undefined
+
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
@@ -48,11 +50,12 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = new models.Playlist "QItUp: " + lastQuery #required to keep track of playlist 
       results.innerHTML = ''
+      from_date = new Date()
 
     for service in services
       service.search 
         query: input.value
-        from_now: from_now.checked
+        from_date: if from_now.checked then from_date else null
       , (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->

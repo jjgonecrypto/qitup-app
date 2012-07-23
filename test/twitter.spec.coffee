@@ -180,11 +180,19 @@ describe "Twitter", ->
     callback = sinon.spy()
     twitter.search 
       query: "twimote"
-      from_now: true
+      from_date: new Date()
     , callback    
     sinon.assert.calledTwice(callback)
     sinon.assert.calledWith(callback, "song2", "band2")
     sinon.assert.calledWith(callback, "song3", "band3")
+    
+    callback2 = sinon.spy()
+    twitter.search 
+      query: "twimote2"
+      from_date: new Date(new Date().getTime() + 3000)
+    , callback2   
+    sinon.assert.calledOnce(callback2)
+    sinon.assert.calledWith(callback2, "song3", "band3")
     done()
 
   oauth_token = "A123"
