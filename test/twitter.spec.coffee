@@ -167,6 +167,26 @@ describe "Twitter", ->
     sinon.assert.calledWith(callback, "song3", "band3")
     done()
 
+
+  it "should not return past tweets if from_now is true", (done) ->
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1, created_at: new Date(new Date().getTime() - 1000)
+    ,
+      text: "play:song2 by:band2 twimote", id: 2, created_at: new Date()
+    ,
+      text: "play:song3 by:band3 twimote", id: 3, created_at: new Date(new Date().getTime() + 1000)
+    ]
+
+    callback = sinon.spy()
+    twitter.search 
+      query: "twimote"
+      from_now: true
+    , callback    
+    sinon.assert.calledTwice(callback)
+    sinon.assert.calledWith(callback, "song2", "band2")
+    sinon.assert.calledWith(callback, "song3", "band3")
+    done()
+
   oauth_token = "A123"
   oauth_secret = "BX99"
   oauth_verifier = "53D1"
