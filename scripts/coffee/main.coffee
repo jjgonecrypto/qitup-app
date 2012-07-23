@@ -18,6 +18,7 @@ init = ->
   results = document.getElementById "results"
   twitterBtn = document.getElementById "twitter-btn"
   twitterText = document.getElementById "twitter-user"
+  from_now = document.getElementById "from-now"
 
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -49,7 +50,10 @@ init = ->
       results.innerHTML = ''
 
     for service in services
-      service.search input.value, (title, band, request) ->
+      service.search 
+        query: input.value
+        from_now: from_now.checked
+      , (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
