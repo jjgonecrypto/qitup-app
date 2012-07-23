@@ -50,20 +50,20 @@ authenticate = (done) ->
   , (err) -> 
     result null, err
 
-search = (query, next) ->
+search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
-  xhr.open "GET", searchUri(query)
+  xhr.open "GET", searchUri(search.query)
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
     try
       data = JSON.parse(xhr.responseText)
     catch err
       return
-    setLastId query, data.max_id_str
+    setLastId search.query, data.max_id_str
     data.results.reverse().forEach (result) ->
       console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
-      return console.log "cached - ignoring" if cached query, result
+      return console.log "cached - ignoring" if cached search.query, result
       tweet = result.text
       {track, artist} = match tweet
       if (track or artist) 
