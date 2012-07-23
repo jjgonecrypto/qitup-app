@@ -64,6 +64,7 @@ search = (search, next) ->
     data.results.reverse().forEach (result) ->
       console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
       return console.log "cached - ignoring" if cached search.query, result
+      return console.log "past - ignoring" if search.from_now and new Date(result.created_at) < new Date()
       tweet = result.text
       {track, artist} = match tweet
       if (track or artist) 

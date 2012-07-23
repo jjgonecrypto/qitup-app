@@ -172,9 +172,9 @@ describe "Twitter", ->
     setResponse [ 
       text: "play:song1 by:band1 twimote", id: 1, created_at: new Date(new Date().getTime() - 1000)
     ,
-      text: "play:song2 by:band2 twimote", id: 2, created_at: new Date()
+      text: "play:song2 by:band2 twimote", id: 2, created_at: new Date(new Date().getTime() + 1500)
     ,
-      text: "play:song3 by:band3 twimote", id: 3, created_at: new Date(new Date().getTime() + 1000)
+      text: "play:song3 by:band3 twimote", id: 3, created_at: new Date(new Date().getTime() + 6000)
     ]
 
     callback = sinon.spy()
