@@ -2,6 +2,11 @@ body, html
   margin 0px
   font-family "Helvetica Neue", Helvetica, sans-serif 
 
+.header
+  width 100%
+  height 60px
+  background #1d1919 url(/header.png) center no-repeat
+
 .content
   padding 1em
 
@@ -13,8 +18,8 @@ ul.results
   > li
     margin 0.3em 0px
     vertical-align middle
-    border-top 1px solid #666
-    border-bottom 1px solid #333
+    &:nth-child(odd)
+      background-color: #DDD
   li 
     vertical-align middle
   li.track
@@ -27,7 +32,7 @@ ul.results
     > a
       color #0099cc
   .request-text
-    opacity 0.6
+    opacity 0.9
     max-width 23em
 
 #listening
