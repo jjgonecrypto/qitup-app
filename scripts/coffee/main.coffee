@@ -12,12 +12,15 @@ init = ->
   interval = undefined
   playlist = undefined
   playlistToSave = undefined
+  from_date = undefined
+
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
   results = document.getElementById "results"
   twitterBtn = document.getElementById "twitter-btn"
   twitterText = document.getElementById "twitter-user"
+  from_now = document.getElementById "from-now"
 
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -47,9 +50,13 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = new models.Playlist "QItUp: " + lastQuery #required to keep track of playlist 
       results.innerHTML = ''
+      from_date = new Date()
 
     for service in services
-      service.search input.value, (title, band, request) ->
+      service.search 
+        query: input.value
+        from_date: if from_now.checked then from_date else null
+      , (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")

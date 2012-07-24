@@ -35,7 +35,7 @@ describe "Twitter", ->
   testPattern = (tweet, query, track, artist, done) ->
     setResponse [ text: tweet, id: Math.round(Math.random()*10000) ]
 
-    twitter.search query, (title, band, username, avatar_uri, fullname, profile_uri) -> 
+    twitter.search {query: query}, (title, band, username, avatar_uri, fullname, profile_uri) -> 
       title.should.eql track if track
       band.should.eql artist if artist 
       should.not.exist title if !track
@@ -84,7 +84,7 @@ describe "Twitter", ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
 
-    twitter.search "twimote", (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, request) -> 
       title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
@@ -97,7 +97,7 @@ describe "Twitter", ->
       from_user_name: "name!"
     ]
 
-    twitter.search "twimote", (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, request) -> 
       request.username.should.eql "user1"
       request.avatar_uri.should.eql "image"
       request.fullname.should.eql "name!"
@@ -114,7 +114,7 @@ describe "Twitter", ->
     ]
 
     callback = sinon.spy()
-    twitter.search "twimote", callback    
+    twitter.search {query: "twimote"}, callback    
     sinon.assert.calledThrice(callback)
     sinon.assert.calledWith(callback, "song1", "band1")
     sinon.assert.calledWith(callback, "song2", "band2")
@@ -128,7 +128,7 @@ describe "Twitter", ->
       text: "play:song2 by:band2 twimote", id: 2
     ]
 
-    twitter.search "twimote", () -> 
+    twitter.search {query: "twimote"}, () -> 
     setResponse [ 
       text: "play:song1 by:band1 twimote", id: 1
     ,
@@ -138,7 +138,7 @@ describe "Twitter", ->
     ]
 
     callback = sinon.spy()
-    twitter.search "twimote", callback    
+    twitter.search {query: "twimote"}, callback    
     sinon.assert.calledOnce(callback)
     sinon.assert.calledWith(callback, "song3", "band3")
     done()
@@ -150,7 +150,7 @@ describe "Twitter", ->
       text: "play:song2 by:band2 twimote", id: 2
     ]
 
-    twitter.search "otherquery", () -> 
+    twitter.search {query: "otherquery"}, () -> 
     setResponse [ 
       text: "play:song1 by:band1 twimote", id: 1
     ,
@@ -160,11 +160,39 @@ describe "Twitter", ->
     ]
 
     callback = sinon.spy()
-    twitter.search "twimote", callback    
+    twitter.search {query: "twimote"}, callback    
     sinon.assert.calledThrice(callback)
     sinon.assert.calledWith(callback, "song1", "band1")
     sinon.assert.calledWith(callback, "song2", "band2")
     sinon.assert.calledWith(callback, "song3", "band3")
+    done()
+
+
+  it "should not return past tweets if from_now is true", (done) ->
+    setResponse [ 
+      text: "play:song1 by:band1 twimote", id: 1, created_at: new Date(new Date().getTime() - 1000)
+    ,
+      text: "play:song2 by:band2 twimote", id: 2, created_at: new Date(new Date().getTime() + 1500)
+    ,
+      text: "play:song3 by:band3 twimote", id: 3, created_at: new Date(new Date().getTime() + 6000)
+    ]
+
+    callback = sinon.spy()
+    twitter.search 
+      query: "twimote"
+      from_date: new Date()
+    , callback    
+    sinon.assert.calledTwice(callback)
+    sinon.assert.calledWith(callback, "song2", "band2")
+    sinon.assert.calledWith(callback, "song3", "band3")
+    
+    callback2 = sinon.spy()
+    twitter.search 
+      query: "twimote2"
+      from_date: new Date(new Date().getTime() + 3000)
+    , callback2   
+    sinon.assert.calledOnce(callback2)
+    sinon.assert.calledWith(callback2, "song3", "band3")
     done()
 
   oauth_token = "A123"
