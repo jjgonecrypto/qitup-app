@@ -1,9 +1,9 @@
-spotify-tweet-control
+Queue It Up! 
 =====================
 
 __version__: 0.3 (in development)
 
-spotify app to control a playlist via a twitter hashtag
+a Spotify app to control a playlist via a twitter hashtag
 
 <img src="http://i.imgur.com/xPrr4.png" width="75%" />
 
