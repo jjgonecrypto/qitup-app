@@ -66,7 +66,7 @@ search = (search, next) ->
       return console.log "cached - ignoring" if cached search.query, result
       return console.log "past - ignoring" if search.from_date and new Date(result.created_at) < search.from_date
       tweet = result.text
-      {track, artist} = match tweet
+      {track, artist, random} = match tweet
       if (track or artist) 
         next track, artist,
           username: result.from_user
@@ -75,6 +75,7 @@ search = (search, next) ->
           profile_uri: "http://twitter.com/#{result.from_user}"
           text: tweet
           id: result.id_str
+          random: random
       else console.log "nothing matched." 
   xhr.send()  
 
@@ -123,8 +124,12 @@ match = (tweet) ->
   matchQuotes = (field, str) ->
     str.match(new RegExp("#{field}\\s+(\"|“).+?(\"|”|$)", "i"))?[0].replace(new RegExp("^#{field}+\\s+(?=\"|“)", "i"), "") or null
 
+  matchHasKeyword = (field, str) ->
+    str.match(new RegExp("#{field}", "i"))?[0]? 
+
   trackPrefixes = ['play','hear','listen','queue']
   artistPrefixes = ['by', 'artist', 'band']
+  randomPrefixes = ['anything', 'something']
 
   for trackPrefix in trackPrefixes
     break if (track = matchColonSpace trackPrefix, tweet) 
@@ -134,7 +139,11 @@ match = (tweet) ->
     break if (artist = matchColonSpace artistPrefix, tweet) 
     break if (artist = matchQuotes artistPrefix, tweet)
 
-  track: track, artist: artist 
+  for randomPrefix in randomPrefixes 
+    break if (random = matchHasKeyword randomPrefix, tweet)    
+
+  console.log random
+  track: track, artist: artist, random: random 
 
 exports.search = search
 exports.reset = reset
