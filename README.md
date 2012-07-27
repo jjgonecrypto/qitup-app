@@ -80,7 +80,7 @@ tweets can use any of the following syntax (where #hashtag is the search term - 
 installation
 -------
 
-1. [optional] enable the developer account on spotify (allows you to load js console, debug, etc.)
+1. [enable a developer account on spotify](https://developer.spotify.com/technologies/apps/#developer-account) (allows you to load js console, debug, etc.)
 
 1. `mkdir ~/Spotify` (or under `My Documents\Spotify` in WinX)
 
