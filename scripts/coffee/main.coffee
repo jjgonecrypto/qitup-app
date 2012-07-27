@@ -63,12 +63,19 @@ init = ->
 
           return service.message request, "sorry, couldn't find #{pretty()}. pls try again" if notFound
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
+          
           decoded =
             track: track.name.decodeForText()
             artist: track.artists[0].name.decodeForText()
+          
           if playlist.indexOf(track) >= 0
             service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
             return console.log "not queued - already in playlist" 
+
+          unless track.playable
+            service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
+            return console.log "not queued - not playable in region." 
+
           playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
