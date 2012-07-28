@@ -92,6 +92,7 @@ installation
 
 1. run `cake watch&` to start a background process to automatically convert `.coffee` to `.js` and `.styl` to `.css` whenver one of the source files is updated. 
 
+1. a twitter api key/secret pair should be added to `/scripts/js/service-keys.js`. simply create a new app via [https://dev.twitter.com/apps/new](https://dev.twitter.com/apps/new) and use `http://qitup.fm` as the __callback url__. (just use anything for the __website__).
 
 running 
 ------ 
