@@ -1,8 +1,9 @@
 sp = getSpotifyApi 1
 
 models = sp.require "sp://import/scripts/api/models"
-helper = sp.require "/scripts/js/helper"
+results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
+
 
 search = sp.require "/scripts/js/search"
 services = [twitter]
@@ -17,7 +18,7 @@ init = ->
   input = document.getElementById "query"
   searchBtn = document.getElementById "search"
   stopBtn = document.getElementById "stop"
-  results = document.getElementById "results"
+  resultsEl = document.getElementById "results"
   twitterBtn = document.getElementById "twitter-btn"
   twitterText = document.getElementById "twitter-user"
   from_now = document.getElementById "from-now"
@@ -49,7 +50,6 @@ init = ->
       lastQuery = input.value
       playlist = new models.Playlist()
       playlistToSave = new models.Playlist "QItUp: " + lastQuery #required to keep track of playlist 
-      results.innerHTML = ''
       from_date = new Date()
 
     for service in services
@@ -79,14 +79,5 @@ init = ->
           playlist.add(track) and playlistToSave.add(track)
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-          entry = document.createElement('li')
-          html = "<ul class='inline'>"
-          html += "<li>#{helper.image(track.image)}</li>"
-          html += "<li class='track'><a class='track-link' href=\"#{track.uri}\">#{track.name}</a><br />by <a href=\"#{track.artists[0].uri}\">#{track.artists[0].name}</a></li>"
-          html += "<li>#{helper.image(request.avatar_uri)}</li>"
-          html += "<li class='user'><a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />"
-          html += "<div class='request-text'>#{request.text}</div></li>"
-          html += "</ul>"
-          results.appendChild entry
-          entry.innerHTML = html
+          resultsEl.innerHTML = resultsEl.innerHTML + results.add(track, track.artists[0], request) 
 exports.init = init
