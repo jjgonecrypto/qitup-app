@@ -22,6 +22,7 @@ init = ->
   twitterBtn = document.getElementById "twitter-btn"
   twitterText = document.getElementById "twitter-user"
   from_now = document.getElementById "from-now"
+  save_playlist = document.getElementById "save-playlist"
 
   searchBtn.addEventListener "click", ->
     clearInterval interval if interval
@@ -49,8 +50,9 @@ init = ->
     if input.value isnt lastQuery
       lastQuery = input.value
       playlist = new models.Playlist()
-      playlistToSave = new models.Playlist "QItUp: " + lastQuery #required to keep track of playlist 
+      playlistToSave = if save_playlist.checked then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
+      resultsEl.innerHTML = ''
 
     for service in services
       service.search 
@@ -76,7 +78,9 @@ init = ->
             service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
             return console.log "not queued - not playable in region." 
 
-          playlist.add(track) and playlistToSave.add(track)
+          playlist.add(track)
+          playlistToSave.add(track) if playlistToSave
+
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
           resultsEl.innerHTML = resultsEl.innerHTML + results.add(track, track.artists[0], request) 
