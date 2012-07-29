@@ -79,7 +79,7 @@ search = (search, next) ->
   xhr.send()  
 
 searchUri = (query) ->
-  uri = "http://search.twitter.com/search.json?rpp=100&q=#{query}"
+  uri = "http://search.twitter.com/search.json?rpp=100&q=#{encodeURIComponent(query)}"
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
@@ -122,6 +122,9 @@ match = (tweet) ->
 
   matchQuotes = (field, str) ->
     str.match(new RegExp("#{field}\\s+(\"|“).+?(\"|”|$)", "i"))?[0].replace(new RegExp("^#{field}+\\s+(?=\"|“)", "i"), "") or null
+
+
+
 
   trackPrefixes = ['play','hear','listen','queue']
   artistPrefixes = ['by', 'artist', 'band']
