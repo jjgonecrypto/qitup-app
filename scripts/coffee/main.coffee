@@ -52,6 +52,7 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = if save_playlist.checked then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
+      resultsEl.innerHTML = ''
 
     for service in services
       service.search 
