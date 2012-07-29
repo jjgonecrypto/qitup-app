@@ -21,7 +21,7 @@
 	    "http://a0.twimg.com"
 	],
 	"DefaultTabs": [
-		{ "arguments": "index", "title": {"en": "Now Streaming"}},
+		{ "arguments": "index", "title": {"en": "Stream"}},
 		{ "arguments": "hiw", "title": {"en": "How it Works"}},
 		{ "arguments": "settings", "title": {"en": "Settings"}}
 	],
