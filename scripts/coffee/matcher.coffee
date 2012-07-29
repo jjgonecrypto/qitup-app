@@ -7,7 +7,7 @@ matchQuotes = (field, str) ->
 ###
 
 trackPrefixes = ['play','hear','listen to','queue up']
-artistPrefixes = ['by', 'artist', 'band']
+artistPrefixes = trackPrefixes.concat ['by', 'artist', 'band']
 albumPrefixes = ['from', 'off']
 randomKeywords = ['random','anything','something']
 
@@ -62,6 +62,13 @@ matchRecurse = (text) ->
   matchFromKeywords text, trackPrefixes, (track, remainder) ->
     appendIfNotExists result, {track: track} 
 
+  #eg. beginning to artist `1979 by the smashing pumpkins`  
+  matchFromKeywords text, null, artistPrefixes, (track, remainder) -> 
+    matchFromKeywords text, artistPrefixes, (artist, remainder) ->
+      appendIfNotExists result, {track: track, artist: artist} 
+    
+    
+    
   matchFromKeywords text, artistPrefixes, (artist, remainder) ->
     appendIfNotExists result, {artist: artist} 
 
@@ -72,6 +79,8 @@ matchRecurse = (text) ->
     appendIfNotExists result, {any: any}
 
   result
+
+
 
 match = (text, callback) ->
 
