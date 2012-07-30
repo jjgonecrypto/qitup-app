@@ -16,34 +16,38 @@ init = ->
   from_date = undefined
 
   input = document.getElementById "query"
-  searchBtn = document.getElementById "search"
-  stopBtn = document.getElementById "stop"
   resultsEl = document.getElementById "results"
-  twitterBtn = document.getElementById "twitter-btn"
   twitterText = document.getElementById "twitter-user"
   from_now = document.getElementById "from-now"
   save_playlist = document.getElementById "save-playlist"
 
-  searchBtn.addEventListener "click", ->
+  document.getElementById("search-btn").addEventListener "click", ->
     clearInterval interval if interval
     interval = setInterval searchServices, 30*1000
     searchServices()
     toggle on
+    document.getElementById("search-query-display").innerHTML = input.value
 
-  stopBtn.addEventListener "click", ->
+  document.getElementById("stop-btn").addEventListener "click", ->
     clearInterval interval if interval
     toggle off
 
-  twitterBtn.addEventListener "click", ->
+  document.getElementById("twitter-service-btn").addEventListener "click", ->
+    current = document.getElementById("services").className
+    document.getElementById("services").className = if current is "hidden" then "shown" else "hidden" 
+
+  document.getElementById("twitter-btn").addEventListener "click", ->
     twitter.authenticate (response, err) ->
       return console.log("err: ", err) if err
       console.log response
       twitterText.innerHTML = "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
+      document.getElementById("twitter-service").className = "auth-state"
+
+  document.getElementById("new-search-btn").addEventListener "click", ->
+    document.getElementById("powerbar").className = "new-state"
 
   toggle = (state) ->
-    listening = document.getElementById "listening"
-    display = if state then "block" else "none"
-    listening.style["display"] = display
+    document.getElementById("powerbar").className = if state then "listen-state" else "stop-state"
 
   searchServices = ->
     position = 0

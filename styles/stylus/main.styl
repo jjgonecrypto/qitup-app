@@ -1,6 +1,11 @@
+$lime = #ccf528
+
 body, html
   margin 0px
   font-family "Helvetica Neue", Helvetica, sans-serif 
+
+button.sp-button, select, label.for-checkbox, a
+  cursor pointer
 
 .header
   width 100%
@@ -10,8 +15,12 @@ body, html
 .content
   padding 1em
 
-label.for-checkbox
-  cursor pointer
+a.disabled
+  opacity 0.5
+  cursor auto
+  font-weight normal
+  &:hover
+    text-decoration none
 
 input[type="checkbox"]
   -webkit-appearance checkbox !important
@@ -40,6 +49,72 @@ ul.results
   .request-text
     opacity 0.9
     max-width 23em
+
+#powerbar 
+  border 1px solid #ddd
+  padding 1em 
+  overflow hidden
+
+  a 
+    font-weight bold
+
+  .status
+    float left
+    vertical-align center
+    
+  .controls
+    float right
+
+  .new
+    display none
+  .subscribed
+    display none
+  .stopped
+    display none 
+
+  &.new-state
+    background-color white
+    .new 
+      display block
+
+  &.listen-state 
+    background-color $lime
+    border 1px solid #bbb
+    color #222
+    .subscribed
+      display block
+
+  &.stop-state
+    background-color white
+    .stopped
+      display block
+
+  .search-query
+    font-weight bold
+
+#services
+  border 1px solid #ddd
+  padding 1em 
+  overflow hidden
+  background-color lightblue
+  
+  .unauth 
+    display none
+  .auth
+    display none
+
+  .unauth-state
+    .unauth
+      display block
+  
+  .auth-state
+    .auth
+      display: block
+
+.hidden
+  display none
+.shown
+  display block
 
 #listening
   display none

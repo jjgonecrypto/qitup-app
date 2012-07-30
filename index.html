@@ -4,27 +4,57 @@
   <meta charset="utf-8">
   <title>Queue It Up!</title>
   <link rel="stylesheet" href="sp://import/css/eve.css">
+  <link rel="stylesheet" href="sp://import/css/api.css">
   <link rel="stylesheet" href="styles/css/main.css">
 </head>
 <body onload="getSpotifyApi(1).require('scripts/js/main').init();">
   <div class="header"></div>
   <div class="content">
-  
-    <button id="twitter-btn">sign into twitter</button> <span id="twitter-user"></span>
-
-    <ul class="inline">
-      <li><label for="query">search: </label></li>
-      <li><input type="text" id="query" /></li>
-      <li><button id="search">search</button></li>
-      <li><input type="checkbox" id="from-now" /><label class="for-checkbox" for="from-now">Don't include past results</label></li>
-      <li><input type="checkbox" id="save-playlist" /><label class="for-checkbox" for="save-playlist">Save a playlist</label></li>
-      <li id="listening">listening for updates... <button id="stop">stop</button>
-    </ul>
-
-    <div>
-      Found and queued: <ul class='results' id='results'></ul>
+    
+    <div id="powerbar" class="new-state">
+      <div class="status">
+        <div class="new">Create channel for  
+          <select><option># hashtag</option><option>@ user mention</option><option>any keyword</option></select>
+          value <input type="text" id="query" /> via 
+          <a id="twitter-service-btn" >Twitter</a>
+          <a id="facebook-service-btn" class="disabled">Facebook</a>
+          <br />
+          <input type="checkbox" id="from-now" /><label class="for-checkbox" for="from-now">Don't include past results</label> 
+          <input type="checkbox" id="save-playlist" /><label class="for-checkbox" for="save-playlist">Save a playlist</label>
+        </div> 
+        <div class="subscribed">
+          Listening for requests containing <span id="search-query-display" class="search-query"></span>
+        </div>
+        <div class="stopped">
+          Last subscription: <a class="search-query">redo</a>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="new"><button id="search-btn" class="sp-button">Start</button></div>
+        <div class="subscribed"><button id="stop-btn" class="sp-button">Stop</button></div>
+        <div class="stopped">
+          <button id="new-search-btn" class="sp-button">New</button>&nbsp;
+          <button id="history-btn" class="sp-button">History</button>
+        </div>
+      </div>
     </div>
 
+    <div id="services" class="hidden">
+      <div id="twitter-service" class="unauth-state">
+        <div class="unauth">
+          <strong>Status: </strong> 
+          <span>Not authenticated <button id="twitter-btn" class="sp-button">Sign into Twitter</button> 
+        </div>
+        <div class="auth">
+          <strong>Status: </strong> 
+          Signed in as <span id="twitter-user"></span>
+          <button id="twitter-signout-btn" class="sp-button">Logout</button> 
+        </div>
+      </div>
+    </div>
+
+    <ul class='results' id='results'></ul>
+    
   </div>
 </body>
 </html>
