@@ -20,10 +20,7 @@ button.sp-button, select, label.for-checkbox, a
 .thumb
   width $thumb_w
   height $thumb_h
-  &.tiny
-    width ($thumb_w / 2)
-    height ($thumb_h / 2)
-
+  
 a.disabled
   opacity 0.5
   cursor auto
@@ -44,6 +41,11 @@ ul.results
     vertical-align middle
     &:nth-child(odd)
       background-color: #DDD
+    &.found
+      opacity 1
+    &.not-found
+      opacity 0.5  
+
   li 
     vertical-align middle
   li.track
@@ -58,6 +60,7 @@ ul.results
   .request-text
     opacity 0.9
     max-width 23em
+
 
 #powerbar 
   border 1px solid #ddd

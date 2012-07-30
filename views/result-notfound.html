@@ -1,8 +1,8 @@
-<li>
+<li class="not-found">
   <ul class="inline">
     <li class="thumb"></li>
     <li class='track'>(Spotify couldn't find: #{searchStr})</li>
-    <li class="thumb">#{helper.image(request.avatar_uri, "tiny thumb")}</li>
+    <li class="thumb">#{helper.image(request.avatar_uri)}</li>
     <li class='user'>
       <a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />
       <div class='request-text'>#{request.text}</div>
