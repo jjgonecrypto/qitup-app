@@ -63,7 +63,10 @@ init = ->
         search.spotify title, band, (track, notFound) ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
 
-          return service.message request, "sorry, couldn't find #{pretty()}. pls try again" if notFound
+          if notFound
+            resultsEl.innerHTML = resultsEl.innerHTML + results.notFound(pretty(), request) 
+            return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
+          
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           
           decoded =
@@ -83,5 +86,5 @@ init = ->
 
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-          resultsEl.innerHTML = resultsEl.innerHTML + results.add(track, track.artists[0], request) 
+          resultsEl.innerHTML = resultsEl.innerHTML + results.found(track, track.artists[0], request) 
 exports.init = init
