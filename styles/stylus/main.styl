@@ -94,10 +94,21 @@ ul.results
 
 #services
   border 1px solid #ddd
-  padding 1em 
   overflow hidden
-  background-color lightblue
-  
+
+  .a-service
+    padding 0em 1em
+
+  #twitter-service
+    background-color lightblue
+    max-height 0
+    -webkit-transition max-height 1s
+    -webkit-transition padding 0.5s
+    
+    &:target 
+      max-height 100px
+      padding 1em 
+
   .unauth 
     display none
   .auth

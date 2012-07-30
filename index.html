@@ -16,7 +16,7 @@
         <div class="new">Create channel for  
           <select><option># hashtag</option><option>@ user mention</option><option>any keyword</option></select>
           value <input type="text" id="query" /> via 
-          <a id="twitter-service-btn" >Twitter</a>
+          <a id="twitter-service-btn" href="#twitter-service">Twitter</a>
           <a id="facebook-service-btn" class="disabled">Facebook</a>
           <br />
           <input type="checkbox" id="from-now" /><label class="for-checkbox" for="from-now">Don't include past results</label> 
@@ -39,19 +39,21 @@
       </div>
     </div>
 
-    <div id="services" class="hidden">
-      <div id="twitter-service" class="unauth-state">
+    <div id="services">
+      <div id="twitter-service" class="a-service unauth-state">
         <div class="unauth">
           <strong>Status: </strong> 
-          <span>Not authenticated <button id="twitter-btn" class="sp-button">Sign into Twitter</button> 
+          <span>Not authenticated</span> <button id="twitter-btn" class="sp-button">Sign into Twitter</button> 
         </div>
         <div class="auth">
           <strong>Status: </strong> 
           Signed in as <span id="twitter-user"></span>
           <button id="twitter-signout-btn" class="sp-button">Logout</button> 
         </div>
+        <a href="#">X</a>
       </div>
     </div>
+
 
     <ul class='results' id='results'></ul>
     
