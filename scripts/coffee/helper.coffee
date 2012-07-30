@@ -1,7 +1,7 @@
-image = (uri) ->
+image = (uri, klass) ->
   img = undefined
   img = new Image()
-  img.className = "thumb"
+  img.className = klass ? "thumb"
   img.src = uri
   img.outerHTML
 
