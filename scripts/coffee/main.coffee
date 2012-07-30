@@ -32,10 +32,6 @@ init = ->
     clearInterval interval if interval
     toggle off
 
-  #document.getElementById("twitter-service-btn").addEventListener "click", ->
-    #current = document.getElementById("services").className
-    #document.getElementById("services").className = if current is "hidden" then "shown" else "hidden" 
-
   document.getElementById("twitter-btn").addEventListener "click", ->
     twitter.authenticate (response, err) ->
       return console.log("err: ", err) if err
