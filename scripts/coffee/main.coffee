@@ -15,7 +15,12 @@ init = ->
   playlistToSave = undefined
   from_date = undefined
 
+  ç("#query").on "focus", -> ç("#query").removeClass("invalid")
+
   ç("#search-btn").on "click", ->
+    if ç("#query").val().trim().length < 1 
+      ç("#query").className("invalid")
+      return 
     clearInterval interval if interval
     interval = setInterval searchServices, 30*1000
     searchServices()

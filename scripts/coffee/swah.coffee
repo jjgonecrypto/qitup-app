@@ -20,8 +20,11 @@ swah = (selector) ->
       forEach (item) -> item?.addEventListener evt, (e) -> callback(e)
     addClass: (clazz) ->
       forEach (item) -> 
-        return unless item and item.className.toLowerCase().indexOf(clazz.toLowerCase()) is -1
+        return unless item and item.className?.toLowerCase().indexOf(clazz.toLowerCase()) is -1
         item?.className += " #{clazz}"
+    removeClass: (clazz) ->
+      forEach (item) -> 
+        item.className = item?.className?.replace(new RegExp(clazz, "gi"), "") if item
     className: (clazz) ->
       forEach (item) -> item?.className = clazz 
     checked: (to) ->
@@ -34,7 +37,5 @@ swah = (selector) ->
       found = ""
       forEach (item) -> found += item.value if item?.value
       found
-
-
-
+      
 exports.swah = swah
