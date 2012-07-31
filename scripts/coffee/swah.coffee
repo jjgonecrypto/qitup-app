@@ -6,7 +6,7 @@ swah = (selector) ->
 
   return hash =
     html: (value) ->
-      if value
+      if typeof(value) is "string"
         forEach (item) -> item?.innerHTML = value
       else
         html = ""

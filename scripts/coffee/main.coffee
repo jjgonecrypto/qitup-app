@@ -17,7 +17,7 @@ init = ->
 
   ç("#query").on "focus", -> ç("#query").removeClass("invalid")
 
-  ç("#search-btn").on "click", -> 
+  ç(".search-btn").on "click", -> 
     return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
        
     clearInterval interval if interval
@@ -26,7 +26,7 @@ init = ->
     toggle on
     ç(".search-query").html ç("#query").val()
 
-  ç("#stop-btn").on "click", ->
+  ç(".stop-btn").on "click", ->
     clearInterval interval if interval
     toggle off
 
@@ -37,8 +37,9 @@ init = ->
       ç("#twitter-user").html "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
       ç("#twitter-service").className "auth-state"
 
-  ç("#new-search-btn").on "click", ->
+  ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"
+    ç("#results").html ""
 
   toggle = (state) ->
     ç("#powerbar").className(if state then "listen-state" else "stop-state")
