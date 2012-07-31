@@ -3,7 +3,7 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
-
+ç = sp.require("/scripts/js/swah").swah
 
 search = sp.require "/scripts/js/search"
 services = [twitter]
@@ -14,7 +14,6 @@ init = ->
   playlist = undefined
   playlistToSave = undefined
   from_date = undefined
-
   input = document.getElementById "query"
   resultsEl = document.getElementById "results"
   twitterText = document.getElementById "twitter-user"
@@ -26,7 +25,7 @@ init = ->
     interval = setInterval searchServices, 30*1000
     searchServices()
     toggle on
-    document.getElementById("search-query-display").innerHTML = input.value
+    ç(".search-query").html input.value
 
   document.getElementById("stop-btn").addEventListener "click", ->
     clearInterval interval if interval
