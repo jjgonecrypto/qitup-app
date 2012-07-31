@@ -17,10 +17,9 @@ init = ->
 
   ç("#query").on "focus", -> ç("#query").removeClass("invalid")
 
-  ç("#search-btn").on "click", ->
-    if ç("#query").val().trim().length < 1 
-      ç("#query").className("invalid")
-      return 
+  ç("#search-btn").on "click", -> 
+    return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
+       
     clearInterval interval if interval
     interval = setInterval searchServices, 30*1000
     searchServices()
@@ -65,7 +64,7 @@ init = ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
 
           if notFound
-            ç("#results").append results.notQueued("(Spotify couldn't find: #{pretty()})", request) 
+            ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
             return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
           
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
@@ -76,12 +75,12 @@ init = ->
           
           if playlist.indexOf(track) >= 0
             service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
-            ç("#results").append results.notQueued("(Already in queue: #{decoded.track})", request) 
+            ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
             return console.log "not queued - already in playlist" 
 
           unless track.playable
             service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
-            ç("#results").append results.notQueued("(Not playable in this region: #{decoded.track})", request)
+            ç("#results").append(results.notQueued("(Not playable in this region: #{decoded.track})", request)).addClass "appear"
             return console.log "not queued - not playable in region." 
 
           playlist.add(track)
@@ -89,5 +88,5 @@ init = ->
 
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-          ç("#results").append results.queued(track, track.artists[0], request) 
+          ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
 exports.init = init

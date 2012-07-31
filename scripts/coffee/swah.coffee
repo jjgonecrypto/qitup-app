@@ -1,5 +1,5 @@
 swah = (selector) ->
-  result = document.querySelectorAll selector	
+  result = if selector instanceof Node then [selector] else document.querySelectorAll selector	
 
   forEach = (callback) ->
     callback result[i] for i in [0..result.length]
@@ -13,8 +13,12 @@ swah = (selector) ->
         forEach (item) -> html += item?.innerHTML
         html  
     append: (html) ->
-      forEach (item) -> item?.innerHTML += html
-    raw: result
+      last = undefined
+      forEach (item) -> 
+        item?.innerHTML += html
+        last = if item?.lastChild? then item.lastChild else last 
+      swah(last) if last
+    raw: if result instanceof Array then result[0] else result
     length: result.length
     on: (evt, callback) ->
       forEach (item) -> item?.addEventListener evt, (e) -> callback(e)

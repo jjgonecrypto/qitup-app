@@ -40,15 +40,20 @@ ul.inline > li
 
 ul.results 
   > li
+    overflow hidden
     margin 0.3em 0px
     vertical-align middle
+    max-height 0px
+    -webkit-transition max-height 1s
+    &.appear
+      max-height 100px  
     &:nth-child(odd)
       background-color: #DDD
     &.found
       opacity 1
     &.not-found
       opacity 0.5  
-
+    
   li 
     vertical-align middle
   li.track
