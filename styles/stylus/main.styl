@@ -66,6 +66,7 @@ ul.results
   border 1px solid #ddd
   padding 1em 
   overflow hidden
+  position relative
 
   a 
     font-weight bold
@@ -73,10 +74,11 @@ ul.results
   .status
     float left
     vertical-align center
-    
+  
   .controls
-    float right
-
+    position absolute
+    right 1em
+    
   .new
     display none
   .subscribed
@@ -107,6 +109,13 @@ ul.results
 #services
   border 1px solid #ddd
   overflow hidden
+  position relative 
+
+  .controls
+    position absolute
+    right 1em
+    a 
+      color white 
 
   >div
     padding 0em 1em
