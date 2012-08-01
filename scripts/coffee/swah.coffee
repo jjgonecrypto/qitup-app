@@ -40,7 +40,7 @@ swah = (selector) ->
       found = ""
       forEach (item) -> 
         if typeof(value) is "string"
-          found = item.value = value
+          found = item.value = value if item
         else
           found += item.value if item?.value
       found
