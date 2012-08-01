@@ -37,9 +37,12 @@ swah = (selector) ->
       forEach (item) -> status = status or item?.checked
       status
     val: (value) ->
-      throw "not implemented" if value
       found = ""
-      forEach (item) -> found += item.value if item?.value
+      forEach (item) -> 
+        if typeof(value) is "string"
+          found = item.value = value
+        else
+          found += item.value if item?.value
       found
       
 exports.swah = swah

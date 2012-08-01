@@ -34,6 +34,7 @@ init = ->
 
   ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"
+    ç("#query").val ""
     ç("#results").html ""
 
   ç(".resume-btn").on "click", -> startSearchingOn lastQuery
