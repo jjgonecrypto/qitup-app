@@ -31,8 +31,12 @@ a.disabled
 input[type="checkbox"]
   -webkit-appearance checkbox !important
 
-input.invalid
-  background-color #fcc
+input
+  -webkit-transition background-color 0.5s
+  &.invalid
+    background-color #faa
+
+
 
 ul.inline > li
   list-style-type none
@@ -75,6 +79,7 @@ ul.results
   padding 1em 
   overflow hidden
   position relative
+  -webkit-transition background-color 0.5s
 
   a 
     font-weight bold
