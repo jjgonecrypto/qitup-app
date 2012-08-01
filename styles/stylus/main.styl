@@ -48,7 +48,7 @@ ul.results
     &.appear
       max-height 100px  
     &:nth-child(odd)
-      background-color: #DDD
+      background-color #DDD
     &.found
       opacity 1
     &.not-found
@@ -87,7 +87,7 @@ ul.results
     position absolute
     right 1em
     text-align center
-    
+
   .new
     display none
   .subscribed
@@ -107,6 +107,21 @@ ul.results
     .subscribed
       display block
 
+    .pulsate
+      border 3px solid white
+      -webkit-border-radius 30px
+      height 18px
+      width 18px
+      position absolute
+      right 10em
+      -webkit-animation pulsate 1.5s ease-out
+      -webkit-animation-iteration-count infinite 
+      opacity 0.0
+
+      &.inner 
+        -webkit-animation pulsate 1.5s ease-out 0.5s
+        -webkit-animation-iteration-count infinite 
+
   &.stop-state
     background-color white
     .stopped
@@ -114,6 +129,9 @@ ul.results
 
   .search-query
     font-weight bold
+
+  #query
+    width 8em
 
 #services
   border 1px solid #ddd
@@ -150,7 +168,7 @@ ul.results
   
   .auth-state
     .auth
-      display: block
+      display block
 
 .hidden
   display none
@@ -159,3 +177,14 @@ ul.results
 
 #listening
   display none
+
+@-webkit-keyframes pulsate
+  0% 
+    -webkit-transform scale(0, 0)
+    opacity 0.0 
+  50% 
+    opacity 0.75
+  100% 
+    -webkit-transform scale(3, 3) 
+    opacity 0.2 
+    border-color white
