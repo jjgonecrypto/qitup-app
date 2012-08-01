@@ -19,12 +19,7 @@ init = ->
 
   ç(".search-btn").on "click", -> 
     return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
-       
-    clearInterval interval if interval
-    interval = setInterval searchServices, 30*1000
-    searchServices()
-    toggle on
-    ç(".search-query").html ç("#query").val()
+    startSearchingOn ç("#query").val()
 
   ç(".stop-btn").on "click", ->
     clearInterval interval if interval
@@ -41,12 +36,20 @@ init = ->
     ç("#powerbar").className "new-state"
     ç("#results").html ""
 
+  ç(".resume-btn").on "click", -> startSearchingOn lastQuery
+
+  startSearchingOn = (query) ->
+    clearInterval interval if interval
+    interval = setInterval (() -> searchServices query), 30*1000
+    searchServices query
+    toggle on
+    ç(".search-query").html query   
+    
   toggle = (state) ->
     ç("#powerbar").className(if state then "listen-state" else "stop-state")
 
-  searchServices = ->
+  searchServices = (query) ->
     position = 0
-    query = ç("#query").val()
 
     if query isnt lastQuery
       lastQuery = query
