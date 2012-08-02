@@ -27,12 +27,12 @@ describe "Twitter", ->
   testPattern = (tweet, query, track, artist, random, done) ->
     setResponse [ text: tweet, id: Math.round(Math.random()*10000) ]
 
-    twitter.search {query: query}, (title, band, request) -> 
+    twitter.search {query: query}, (title, band, random, request) -> 
       title.should.eql track if track
       band.should.eql artist if artist 
       should.not.exist title if !track
       should.not.exist band if !artist
-      request.random.should.eql random
+      random.should.eql random
       done()
 
   it "should parse the song title from a tweet as colon", (done) ->
@@ -74,9 +74,9 @@ describe "Twitter", ->
       done()
 
   it "should handle requests for random tracks", (done) ->
-    testPattern "queue something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
-      testPattern "anything by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
-        testPattern "by \"the anything clash\" #twimote", "twimote", null, "\"the anything clash\"", false, () ->
+    testPattern "i want to hear something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
+      testPattern "play anything by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
+        testPattern "by \"the anything clash\" #ctwimote", "twimote", null, "\"the anything clash\"", false, () ->
           testPattern "play \"something else\" #twimote", "twimote", "\"something else\"", null, false, () ->
             done()
 
@@ -84,7 +84,7 @@ describe "Twitter", ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
 
-    twitter.search {query: "twimote"}, (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, random, request) -> 
       title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
@@ -97,7 +97,7 @@ describe "Twitter", ->
       from_user_name: "name!"
     ]
 
-    twitter.search {query: "twimote"}, (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, random, request) -> 
       request.username.should.eql "user1"
       request.avatar_uri.should.eql "image"
       request.fullname.should.eql "name!"
