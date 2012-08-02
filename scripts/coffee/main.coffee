@@ -63,9 +63,9 @@ init = ->
       service.search 
         query: query
         from_date: if ç("#from-now").checked() then from_date else null
-      , (title, band, request) ->
+      , (title, band, random, request) ->
         console.log "requested: #{title} by #{band}", request
-        search.spotify title, band, (track, notFound) ->
+        search.spotify title, band, random, (track, notFound) ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
 
           if notFound

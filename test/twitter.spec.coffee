@@ -24,59 +24,67 @@ describe "Twitter", ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: results
 
-  testPattern = (tweet, query, track, artist, done) ->
+  testPattern = (tweet, query, track, artist, random, done) ->
     setResponse [ text: tweet, id: Math.round(Math.random()*10000) ]
 
-    twitter.search {query: query}, (title, band, username, avatar_uri, fullname, profile_uri) -> 
+    twitter.search {query: query}, (title, band, random, request) -> 
       title.should.eql track if track
       band.should.eql artist if artist 
       should.not.exist title if !track
       should.not.exist band if !artist
+      random.should.eql random
       done()
 
   it "should parse the song title from a tweet as colon", (done) ->
-    testPattern "play:where-the-wild #twimote", "twimote", "where-the-wild", null, () ->
-      testPattern "i want to hear:where-the-wild #twimote", "twimote", "where-the-wild", null, () ->
-        testPattern "#twimote listen:where-the-wild", "twimote", "where-the-wild", null, () ->
-          testPattern "#twimote queue:johnson,_123", "twimote", "johnson,_123", null, () ->
+    testPattern "play:where-the-wild #twimote", "twimote", "where-the-wild", null, false, () ->
+      testPattern "i want to hear:where-the-wild #twimote", "twimote", "where-the-wild", null, false, () ->
+        testPattern "#twimote listen:where-the-wild", "twimote", "where-the-wild", null, false, () ->
+          testPattern "#twimote queue:johnson,_123", "twimote", "johnson,_123", null, false, () ->
             done()
 
   it "should parse the song title from a tweet as a dbl quoted string", (done) ->
-    testPattern "play \"where the wild\" at #twimote", "twimote", "\"where the wild\"", null, () ->
-      testPattern "i'd like to hear \"good, earth\" at #twimote today", "twimote", "\"good, earth\"", null, () ->
-        testPattern "twimote pls queue \"bottle!  12!\" ok? \"yes!\"", "twimote", "\"bottle!  12!\"", null, () ->
+    testPattern "play \"where the wild\" at #twimote", "twimote", "\"where the wild\"", null, false, () ->
+      testPattern "i'd like to hear \"good, earth\" at #twimote today", "twimote", "\"good, earth\"", null, false, () ->
+        testPattern "twimote pls queue \"bottle!  12!\" ok? \"yes!\"", "twimote", "\"bottle!  12!\"", null, false, () ->
           done()
 
   it "should parse the artist name from a tweet as colon", (done) ->
-    testPattern "will you queue:something-else by:bjorn at #twimote", "twimote", "something-else", "bjorn", () ->
-      testPattern "artist:take-that queue:something-else at #twimote", "twimote", "something-else", "take-that", () ->
-        testPattern "play \"something else\" at #twimote band:brian-jonestown", "twimote", "\"something else\"", "brian-jonestown", () ->
+    testPattern "will you queue:someone-else by:bjorn at #twimote", "twimote", "someone-else", "bjorn", false, () ->
+      testPattern "artist:take-that queue:someone-else at #twimote", "twimote", "someone-else", "take-that", false, () ->
+        testPattern "play \"someone else\" at #twimote band:brian-jonestown", "twimote", "\"someone else\"", "brian-jonestown", false, () ->
           done()
 
   it "should parse the artist name from a tweet as a dbl quoted string", (done) ->
-    testPattern "i want to hear \"we're the monkeys\", by \"The Monkeys\" at twimote", "twimote", "\"we're the monkeys\"", "\"The Monkeys\"", () ->
-      testPattern "band \"green day\" play \"time of your life\" at twimote", "twimote", "\"time of your life\"", "\"green day\"", () ->
-        testPattern "listen \"time of your life\" at twimote, artist \"Green day!\"", "twimote", "\"time of your life\"", "\"Green day!\"", () ->        
+    testPattern "i want to hear \"we're the monkeys\", by \"The Monkeys\" at twimote", "twimote", "\"we're the monkeys\"", "\"The Monkeys\"", false, () ->
+      testPattern "band \"green day\" play \"time of your life\" at twimote", "twimote", "\"time of your life\"", "\"green day\"", false, () ->
+        testPattern "listen \"time of your life\" at twimote, artist \"Green day!\"", "twimote", "\"time of your life\"", "\"Green day!\"", false, () ->        
           done()
 
   it "should parse lh and rh double quote strings", (done) ->
-    testPattern "play “hoochie mama” by “2 live crew” #twimote", "twimote", "“hoochie mama”", "“2 live crew”", () ->
-      testPattern "play “hoochie mama” by \"2 live crew\" #twimote", "twimote", "“hoochie mama”", "\"2 live crew\"", () ->
+    testPattern "play “hoochie mama” by “2 live crew” #twimote", "twimote", "“hoochie mama”", "“2 live crew”", false, () ->
+      testPattern "play “hoochie mama” by \"2 live crew\" #twimote", "twimote", "“hoochie mama”", "\"2 live crew\"", false, () ->
         done()
 
   it "should ignore whitespace between identifier and double quotes", (done) ->
-    testPattern "play     \"artist\"   by    \"xxyyxx\" #twimote", "twimote", "\"artist\"", "\"xxyyxx\"", () ->
+    testPattern "play     \"artist\"   by    \"xxyyxx\" #twimote", "twimote", "\"artist\"", "\"xxyyxx\"", false, () ->
       done()
 
   it "should handle empty track titles", (done) ->
-    testPattern "queue something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", () ->
+    testPattern "queue track by \"the clash\" #twimote", "twimote", null, "\"the clash\"", false, () ->
       done()
+
+  it "should handle requests for random tracks", (done) ->
+    testPattern "i want to hear something by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
+      testPattern "play anything by \"the clash\" #twimote", "twimote", null, "\"the clash\"", true, () ->
+        testPattern "by \"the anything clash\" #ctwimote", "twimote", null, "\"the anything clash\"", false, () ->
+          testPattern "play \"something else\" #twimote", "twimote", "\"something else\"", null, false, () ->
+            done()
 
   it "should handle any order of play and by", (done) ->
     global.XMLHttpRequest.prototype.responseText = JSON.stringify 
       results: [ text:  "lorem ipsum idosyncraties #twimote by:nirvana-123 play:gone-wind-1" ]
 
-    twitter.search {query: "twimote"}, (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, random, request) -> 
       title.should.eql "gone-wind-1"
       band.should.eql "nirvana-123"
       done()
@@ -89,7 +97,7 @@ describe "Twitter", ->
       from_user_name: "name!"
     ]
 
-    twitter.search {query: "twimote"}, (title, band, request) -> 
+    twitter.search {query: "twimote"}, (title, band, random, request) -> 
       request.username.should.eql "user1"
       request.avatar_uri.should.eql "image"
       request.fullname.should.eql "name!"

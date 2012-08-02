@@ -8,7 +8,7 @@ models.session.observe models.EVENT.STATECHANGED, () ->
   else
     console.log "disconnected :(" 
 
-spotify = (title, artist, done) ->
+spotify = (title, artist, random, done) ->
   query = ""
   query += " track:#{title}" if title
   query += " artist:#{artist}" if artist
@@ -17,7 +17,8 @@ spotify = (title, artist, done) ->
   search.observe models.EVENT.CHANGE, () ->
     search.ignore models.EVENT.CHANGE #remove listener
     if search.tracks.length 
-      done search.tracks[0]
+      index = if random then Math.floor(Math.random() * search.tracks.length) else 0
+      done search.tracks[index]
     else 
       console.log "no tracks found for: #{query}" 
       done null, true
