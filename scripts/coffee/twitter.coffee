@@ -80,7 +80,7 @@ search = (search, next) ->
   xhr.send()  
 
 searchUri = (query) ->
-  uri = "http://search.twitter.com/search.json?rpp=100&q=#{query}"
+  uri = "http://search.twitter.com/search.json?rpp=100&q=#{encodeURIComponent(query)}"
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
@@ -142,7 +142,7 @@ match = (tweet) ->
   for randomPrefix in randomPrefixes 
     break if (random = matchHasKeyword randomPrefix, tweet)    
 
-  console.log random
+  console.log "random? ", random
   track: track, artist: artist, random: random 
 
 exports.search = search

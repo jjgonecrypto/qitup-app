@@ -80,7 +80,7 @@ tweets can use any of the following syntax (where #hashtag is the search term - 
 installation
 -------
 
-1. [optional] enable the developer account on spotify (allows you to load js console, debug, etc.)
+1. [enable a developer account on spotify](https://developer.spotify.com/technologies/apps/#developer-account) (allows you to load js console, debug, etc.)
 
 1. `mkdir ~/Spotify` (or under `My Documents\Spotify` in WinX)
 
@@ -92,13 +92,14 @@ installation
 
 1. run `cake watch&` to start a background process to automatically convert `.coffee` to `.js` and `.styl` to `.css` whenver one of the source files is updated. 
 
+1. a twitter api key/secret pair should be added to `/scripts/js/service-keys.js`. simply create a new app via [https://dev.twitter.com/apps/new](https://dev.twitter.com/apps/new) and use `http://qitup.fm` as the __callback url__. (just use anything for the __website__).
 
 running 
 ------ 
 
 1. open spotify app 
 
-1. search for `spotify:app:twimote` (loads the app)
+1. search for `spotify:app:qitup` (loads the app)
 
 1. enter in your search query and click "search". (note: hash `#` character is not required). lastest track should start to play.
 

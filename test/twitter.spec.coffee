@@ -1,12 +1,4 @@
-should = require "should"
-sinon = require "sinon"
-
-auth = {}
-global.getSpotifyApi = () -> 
-  require: (module) -> 
-    return require "../#{module}" unless (module.indexOf "sp://") is 0
-    if module is "sp://import/scripts/api/auth" then auth else {}
-global.XMLHttpRequest = () ->
+{should, sinon, auth} = require("./base")()
 
 twitter = require "../scripts/coffee/twitter"
 
