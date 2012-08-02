@@ -5,6 +5,14 @@ keys = sp.require "/scripts/js/service-keys"
 jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5"
 jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 
+url = 
+  request: "https://api.twitter.com/oauth/request_token"
+  auth: "https://api.twitter.com/oauth/authorize"
+  access: "https://api.twitter.com/oauth/access_token"
+  signout: "https://api.twitter.com/1/account/end_session.json"
+  search: "http://search.twitter.com/search.json"
+  message: "https://api.twitter.com/1/statuses/update.json"
+  
 xhr = undefined
 api = undefined
 
@@ -25,17 +33,17 @@ authenticate = (done) ->
     api.status = response? and (err is undefined or err is null)
     done response, err
 
-  api.post 'https://api.twitter.com/oauth/request_token', {}
+  api.post url.request, {}
   , (data) -> 
     console.log "token OK."
     oauth = api.parseTokenRequest data
-    auth.showAuthenticationDialog "https://api.twitter.com/oauth/authorize?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
+    auth.showAuthenticationDialog "#{url.auth}?oauth_token="+oauth.oauth_token, 'http://qitup.fm', 
       onSuccess: (response) ->
         if response.indexOf("?denied=#{oauth.oauth_token}") >= 0 
           api.status = false
           return done(null, "user access denied.") 
         api.setAccessToken oauth.oauth_token, oauth.oauth_token_secret
-        api.post "https://api.twitter.com/oauth/access_token",
+        api.post url.access,
           oauth_verifier: parseUri response, "oauth_verifier"
         , (data) ->
           console.log "twitter authenticated."
@@ -52,7 +60,7 @@ authenticate = (done) ->
 
 signout = (done) ->
   return done() unless api?.status
-  api.post "https://api.twitter.com/1/account/end_session.json", {}
+  api.post url.signout, {}
   , (data) ->
     console.log "logged out of Twitter successfully."
     api.status = false
@@ -90,7 +98,7 @@ search = (search, next) ->
   xhr.send()  
 
 searchUri = (query) ->
-  uri = "http://search.twitter.com/search.json?rpp=100&q=#{encodeURIComponent(query)}"
+  uri = "#{url.search}?rpp=100&q=#{encodeURIComponent(query)}"
   uri += "&since_id=#{tweetsByQuery[query].last_id}" if tweetsByQuery[query]?.last_id
   uri
 
@@ -99,7 +107,7 @@ logged_in = () -> api.status is true
 message = (tweet, text, done) ->
   return console.log "no twitterauth" unless api?.status
   console.log tweet, text
-  api.post "https://api.twitter.com/1/statuses/update.json", 
+  api.post url.message, 
     status: "@#{tweet.username} #{text}"
     in_reply_to_status_id: tweet.id
   , (data) ->
