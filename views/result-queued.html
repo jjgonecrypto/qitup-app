@@ -1,7 +1,7 @@
-<li>
+<li class="found">
   <ul class="inline">
     <li>#{helper.image(track.image)}</li>
-    <li class='track'><a class='track-link' href=\"#{track.uri}\">#{track.name}</a><br />by <a href=\"#{artist.uri}\">#{artist.name}</a></li>
+    <li class='track'><div class="track-name">#{track.name}</div>by <a href=\"#{artist.uri}\">#{artist.name}</a></li>
     <li>#{helper.image(request.avatar_uri)}</li>
     <li class='user'>
       <a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />

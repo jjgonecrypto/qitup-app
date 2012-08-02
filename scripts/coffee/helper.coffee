@@ -1,8 +1,7 @@
-image = (uri, width, height) ->
+image = (uri, klass) ->
   img = undefined
-  width = width or 50
-  height = height or 50
-  img = new Image(width, height)
+  img = new Image()
+  img.className = klass ? "thumb"
   img.src = uri
   img.outerHTML
 
