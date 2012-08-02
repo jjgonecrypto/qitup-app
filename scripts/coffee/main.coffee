@@ -19,7 +19,7 @@ init = ->
 
   ç(".search-btn").on "click", -> 
     return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
-    startSearchingOn ç("#query").val()
+    startSearchingOn(ç("#search-type").val() + ç("#query").val())
 
   ç(".stop-btn").on "click", ->
     clearInterval interval if interval
