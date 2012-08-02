@@ -50,6 +50,17 @@ authenticate = (done) ->
   , (err) -> 
     result null, err
 
+signout = (done) ->
+  return done() unless api?.status
+  api.post "https://api.twitter.com/1/account/end_session.json", {}
+  , (data) ->
+    console.log "logged out of Twitter successfully."
+    api.status = false
+    done()
+  , (err) ->
+    console.log "error logging out of Twitter", err
+    done err
+
 search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
@@ -150,3 +161,4 @@ exports.reset = reset
 exports.authenticate = authenticate
 exports.logged_in = logged_in
 exports.message = message
+exports.signout = signout

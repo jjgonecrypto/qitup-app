@@ -29,13 +29,21 @@ init = ->
     twitter.authenticate (response, err) ->
       return console.log("err: ", err) if err
       console.log response
-      ç("#twitter-user").html "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
+      ç(".twitter-status").html "successfully signed in as <a class='twitter-username' href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
       ç("#twitter-service").className "auth-state"
 
   ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"
     ç("#query").val ""
     ç("#results").html ""
+
+  ç("#twitter-signout-btn").on "click", ->
+    twitter.signout (err) ->
+      if err
+        ç(".twitter-status").html "error signing out. please try again."
+      else
+        ç(".twitter-status").html "signed out."
+        ç("#twitter-service").className "unauth-state"
 
   ç(".resume-btn").on "click", -> startSearchingOn lastQuery
 
