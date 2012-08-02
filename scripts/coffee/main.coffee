@@ -3,7 +3,7 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
-
+ç = sp.require("/scripts/js/swah").swah
 
 search = sp.require "/scripts/js/search"
 services = [twitter]
@@ -15,55 +15,63 @@ init = ->
   playlistToSave = undefined
   from_date = undefined
 
-  input = document.getElementById "query"
-  searchBtn = document.getElementById "search"
-  stopBtn = document.getElementById "stop"
-  resultsEl = document.getElementById "results"
-  twitterBtn = document.getElementById "twitter-btn"
-  twitterText = document.getElementById "twitter-user"
-  from_now = document.getElementById "from-now"
-  save_playlist = document.getElementById "save-playlist"
+  ç("#query").on "focus", -> ç("#query").removeClass("invalid")
 
-  searchBtn.addEventListener "click", ->
-    clearInterval interval if interval
-    interval = setInterval searchServices, 30*1000
-    searchServices()
-    toggle on
+  ç(".search-btn").on "click", -> 
+    return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
+    startSearchingOn(ç("#search-type").val() + ç("#query").val())
 
-  stopBtn.addEventListener "click", ->
+  ç(".stop-btn").on "click", ->
     clearInterval interval if interval
     toggle off
 
-  twitterBtn.addEventListener "click", ->
+  ç("#twitter-btn").on "click", ->
     twitter.authenticate (response, err) ->
       return console.log("err: ", err) if err
       console.log response
-      twitterText.innerHTML = "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
+      ç("#twitter-user").html "signed in as <a href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
+      ç("#twitter-service").className "auth-state"
 
+  ç(".new-search-btn").on "click", ->
+    ç("#powerbar").className "new-state"
+    ç("#query").val ""
+    ç("#results").html ""
+
+  ç(".resume-btn").on "click", -> startSearchingOn lastQuery
+
+  startSearchingOn = (query) ->
+    clearInterval interval if interval
+    interval = setInterval (() -> searchServices query), 30*1000
+    searchServices query
+    toggle on
+    ç(".search-query").html query   
+    
   toggle = (state) ->
-    listening = document.getElementById "listening"
-    display = if state then "block" else "none"
-    listening.style["display"] = display
+    ç("#powerbar").className(if state then "listen-state" else "stop-state")
 
-  searchServices = ->
+  searchServices = (query) ->
     position = 0
-    if input.value isnt lastQuery
-      lastQuery = input.value
+
+    if query isnt lastQuery
+      lastQuery = query
       playlist = new models.Playlist()
-      playlistToSave = if save_playlist.checked then new models.Playlist "QItUp: " + lastQuery else null
+      playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
-      resultsEl.innerHTML = ''
+      ç("#results").html ""
 
     for service in services
       service.search 
-        query: input.value
-        from_date: if from_now.checked then from_date else null
+        query: query
+        from_date: if ç("#from-now").checked() then from_date else null
       , (title, band, request) ->
         console.log "requested: #{title} by #{band}", request
         search.spotify title, band, (track, notFound) ->
           pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
 
-          return service.message request, "sorry, couldn't find #{pretty()}. pls try again" if notFound
+          if notFound
+            ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
+            return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
+          
           console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
           
           decoded =
@@ -72,10 +80,12 @@ init = ->
           
           if playlist.indexOf(track) >= 0
             service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
+            ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
             return console.log "not queued - already in playlist" 
 
           unless track.playable
             service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
+            ç("#results").append(results.notQueued("(Not playable in this region: #{decoded.track})", request)).addClass "appear"
             return console.log "not queued - not playable in region." 
 
           playlist.add(track)
@@ -83,5 +93,5 @@ init = ->
 
           models.player.play track, playlist, position++ if !models.player.playing and position is 0
           service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-          resultsEl.innerHTML = resultsEl.innerHTML + results.add(track, track.artists[0], request) 
+          ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
 exports.init = init

@@ -1,6 +1,13 @@
+$lime = #ccf528
+$thumb_w = 50px
+$thumb_h = 50px
+
 body, html
   margin 0px
   font-family "Helvetica Neue", Helvetica, sans-serif 
+
+button.sp-button, select, label.for-checkbox, a
+  cursor pointer
 
 .header
   width 100%
@@ -10,11 +17,26 @@ body, html
 .content
   padding 1em
 
-label.for-checkbox
-  cursor pointer
+.thumb
+  width $thumb_w
+  height $thumb_h
+  
+a.disabled
+  opacity 0.5
+  cursor auto
+  font-weight normal
+  &:hover
+    text-decoration none
 
 input[type="checkbox"]
   -webkit-appearance checkbox !important
+
+input
+  -webkit-transition background-color 0.5s
+  &.invalid
+    background-color #faa
+
+
 
 ul.inline > li
   list-style-type none
@@ -22,24 +44,152 @@ ul.inline > li
 
 ul.results 
   > li
+    overflow hidden
     margin 0.3em 0px
     vertical-align middle
+    max-height 0px
+    -webkit-transition max-height 1s
+    &.appear
+      max-height 100px  
     &:nth-child(odd)
-      background-color: #DDD
+      background-color #DDD
+    &.found
+      opacity 1
+    &.not-found
+      opacity 0.7  
+    
   li 
     vertical-align middle
   li.track
     margin-left 1em
     width 25em
-    a.track-link
+    .track-name
+      color black
       font-weight bold
   li.user 
     margin-left 1em
     > a
       color #0099cc
   .request-text
-    opacity 0.9
     max-width 23em
+
+
+#powerbar 
+  border 1px solid #ddd
+  padding 1em 
+  overflow hidden
+  position relative
+  -webkit-transition background-color 0.5s
+
+  a 
+    font-weight bold
+
+  .status
+    float left
+    vertical-align center
+  
+  .controls
+    position absolute
+    right 1em
+    text-align center
+
+  .new
+    display none
+  .subscribed
+    display none
+  .stopped
+    display none 
+
+  &.new-state
+    background-color white
+    .new 
+      display block
+
+  &.listen-state 
+    background-color $lime
+    border 1px solid #bbb
+    color #222
+    .subscribed
+      display block
+
+    .pulsate
+      border 3px solid white
+      -webkit-border-radius 30px
+      height 18px
+      width 18px
+      position absolute
+      right 10em
+      -webkit-animation pulsate 1.5s ease-out
+      -webkit-animation-iteration-count infinite 
+      opacity 0.0
+
+      &.inner 
+        -webkit-animation pulsate 1.5s ease-out 0.5s
+        -webkit-animation-iteration-count infinite 
+
+  &.stop-state
+    background-color white
+    .stopped
+      display block
+
+  .search-query
+    font-weight bold
+
+  #query
+    width 8em
+
+#services
+  border 1px solid #ddd
+  overflow hidden
+  position relative 
+
+  .controls
+    position absolute
+    right 1em
+    a 
+      color white 
+
+  >div
+    padding 0em 1em
+
+  #twitter-service
+    background-color lightblue
+    max-height 0
+    -webkit-transition max-height 1s
+    -webkit-transition padding 0.5s
+    
+    &:target 
+      max-height 100px
+      padding 1em 
+
+  .unauth 
+    display none
+  .auth
+    display none
+
+  .unauth-state
+    .unauth
+      display block
+  
+  .auth-state
+    .auth
+      display block
+
+.hidden
+  display none
+.shown
+  display block
 
 #listening
   display none
+
+@-webkit-keyframes pulsate
+  0% 
+    -webkit-transform scale(0, 0)
+    opacity 0.0 
+  50% 
+    opacity 0.75
+  100% 
+    -webkit-transform scale(3, 3) 
+    opacity 0.2 
+    border-color white
