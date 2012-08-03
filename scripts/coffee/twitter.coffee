@@ -90,7 +90,7 @@ search = (search, next) ->
         fullname: result.from_user_name
         avatar_uri: result.profile_image_url
         profile_uri: "http://twitter.com/#{result.from_user}"
-        stripped: result.text.replace(search.query, "")
+        stripped: result.text.replace(new RegExp(search.query, "gi"), "")
         text: result.text
         id: result.id_str
 

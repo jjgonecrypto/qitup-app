@@ -39,7 +39,7 @@ describe "Twitter", ->
       request.profile_uri.should.eql "http://twitter.com/#{request.username}"
       done()
 
-  requestStub = (text, query) ->
+  requestStub = (text, stripped) ->
     base = 
       username: undefined
       fullname: undefined
@@ -48,7 +48,7 @@ describe "Twitter", ->
       id: undefined
 
     base.text = text
-    base.stripped = text.replace(query, "")
+    base.stripped = stripped
     base
 
   it "should emit searches for all found tweets", (done) ->
@@ -64,9 +64,9 @@ describe "Twitter", ->
     twitter.search {query: "twimote"}, callback    
     sinon.assert.calledThrice(callback)
     
-    sinon.assert.calledWith(callback, requestStub("play:song1 by:band1 twimote", "twimote"))
-    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "twimote"))
-    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "twimote"))
+    sinon.assert.calledWith(callback, requestStub("play:song1 by:band1 twimote", "play:song1 by:band1 "))
+    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "play:song2 by:band2 "))
+    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "play:song3 by:band3 "))
     done()
 
   it "should cache tweets within subsequent query", (done) ->
@@ -88,7 +88,7 @@ describe "Twitter", ->
     callback = sinon.spy()
     twitter.search {query: "twimote"}, callback    
     sinon.assert.calledOnce(callback)
-    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "twimote"))
+    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "play:song3 by:band3 "))
     done()
 
   it "should not used cached tweets between different queries", (done) ->
@@ -110,13 +110,49 @@ describe "Twitter", ->
     callback = sinon.spy()
     twitter.search {query: "twimote"}, callback    
     sinon.assert.calledThrice(callback)
-    sinon.assert.calledWith(callback, requestStub("play:song1 by:band1 twimote", "twimote"))
-    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "twimote"))
-    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "twimote"))
+    sinon.assert.calledWith(callback, requestStub("play:song1 by:band1 twimote", "play:song1 by:band1 "))
+    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "play:song2 by:band2 "))
+    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "play:song3 by:band3 "))
     done()
 
 
-  it "should strip keywords from the tweet"
+  it "should strip keywords from the tweet", (done) ->
+    tweet1 = "@twimote play:song1 by:band1 @twimote ok?"
+    setResponse [ 
+      text: tweet1, id: 1
+    ]
+    callback = sinon.spy()
+    twitter.search {query: "@twimote"}, callback    
+    sinon.assert.calledWith(callback, requestStub(tweet1, " play:song1 by:band1  ok?"))
+
+    tweet2 = "can #twimote play \"song2\" by \"some band\" twimote #twimote twimote" 
+    setResponse [
+      text: tweet2, id: 2
+    ]
+    callback2 = sinon.spy()
+    twitter.search {query: "#twimote"}, callback2
+    sinon.assert.calledWith(callback2, requestStub(tweet2, "can  play \"song2\" by \"some band\" twimote  twimote"))    
+
+    tweet3 = "justin play \"something\"justin ok???"
+    setResponse [
+      text: tweet3, id: 3
+    ]
+    callback3 = sinon.spy()
+    twitter.search {query: "justin"}, callback3
+    sinon.assert.calledWith(callback3, requestStub(tweet3, " play \"something\" ok???"))
+    done()
+
+  it "should strip case insensitive", (done) ->
+    tweet = "@TwiMOTe play:song1 by:band1 @twimotE ok?"
+    setResponse [ 
+      text: tweet, id: 1
+    ]
+    callback = sinon.spy()
+    twitter.search {query: "@twimote"}, callback    
+    sinon.assert.calledWith(callback, requestStub(tweet, " play:song1 by:band1  ok?"))
+    done()
+
+  it "should not replace keyword searches within matched items"
 
 
   it "should not return past tweets if from_now is true", (done) ->
@@ -134,8 +170,8 @@ describe "Twitter", ->
       from_date: new Date()
     , callback    
     sinon.assert.calledTwice(callback)
-    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "twimote"))
-    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "twimote"))
+    sinon.assert.calledWith(callback, requestStub("play:song2 by:band2 twimote", "play:song2 by:band2 "))
+    sinon.assert.calledWith(callback, requestStub("play:song3 by:band3 twimote", "play:song3 by:band3 "))
     
     #reset these to create new IDs, preventing cache from coming into effect
     setResponse [ 
@@ -152,7 +188,7 @@ describe "Twitter", ->
       from_date: new Date(new Date().getTime() + 3000)
     , callback2   
     sinon.assert.calledOnce(callback2)
-    sinon.assert.calledWith(callback2, requestStub("play:song3 by:band3 twimote", "twimote"))
+    sinon.assert.calledWith(callback2, requestStub("play:song3 by:band3 twimote", "play:song3 by:band3 "))
     done()
 
   oauth_token = "A123"
