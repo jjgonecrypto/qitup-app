@@ -152,8 +152,30 @@ describe "Twitter", ->
     sinon.assert.calledWith(callback, requestStub(tweet, " play:song1 by:band1  ok?"))
     done()
 
-  it "should not replace keyword searches within matched items"
+  it "should not replace keyword searches within matched items", (done) ->
+    tweet = "play \"some track first\" by \"my first crush\" first!"
+    setResponse [ 
+      text: tweet, id: 1
+    ]
+    callback = sinon.spy()
+    twitter.search {query: "first"}, callback    
+    sinon.assert.calledWith(callback, requestStub(tweet, "play \"some track first\" by \"my first crush\" "))
+    done()
 
+    #TO FIX: prevent stripping when no proceeding character
+
+
+  it "should escape regex characters from the search", (done) ->
+    tweet = "play \"some track first\" by \"my first crush\" $twimote"
+    setResponse [ 
+      text: tweet, id: 1
+    ]
+    callback = sinon.spy()
+    twitter.search {query: "$twimote"}, callback    
+    sinon.assert.calledWith(callback, requestStub(tweet, "play \"some track first\" by \"my first crush\" c"))
+    done()
+
+    #TO FIX: escape anything not [a-zA-Z0-9_-] 
 
   it "should not return past tweets if from_now is true", (done) ->
     setResponse [ 
