@@ -3,6 +3,8 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
+matcher = sp.require "/scripts/js/matcher"
+
 ç = sp.require("/scripts/js/swah").swah
 
 search = sp.require "/scripts/js/search"
@@ -71,35 +73,41 @@ init = ->
       service.search 
         query: query
         from_date: if ç("#from-now").checked() then from_date else null
-      , (title, band, random, request) ->
-        console.log "requested: #{title} by #{band}", request
-        search.spotify title, band, random, (track, notFound) ->
-          pretty = () => (if title then "#{title}" else "anything") + (if band then " by #{band}" else "")
+      , (request) ->
+        matcher.match request.stripped, (match) ->
+          unless match
+            console.log "no match for tweet", request.text
+            return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
 
-          if notFound
-            ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
-            return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
-          
-          console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
-          
-          decoded =
-            track: track.name.decodeForText()
-            artist: track.artists[0].name.decodeForText()
-          
-          if playlist.indexOf(track) >= 0
-            service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
-            ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
-            return console.log "not queued - already in playlist" 
+          console.log "requested: #{match.track} by #{match.artist}", request
 
-          unless track.playable
-            service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
-            ç("#results").append(results.notQueued("(Not playable in this region: #{decoded.track})", request)).addClass "appear"
-            return console.log "not queued - not playable in region." 
+          search.spotify match.track, match.artist, match.random, (track, notFound) ->
+            pretty = () => (if match.track then "#{match.track}" else "anything") + (if band then " by #{match.artist}" else "")
 
-          playlist.add(track)
-          playlistToSave.add(track) if playlistToSave
+            if notFound
+              ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
+              return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
+            
+            console.log "spotify found: #{track.name} by #{track.artists[0].name}", track
+            
+            decoded =
+              track: track.name.decodeForText()
+              artist: track.artists[0].name.decodeForText()
+            
+            if playlist.indexOf(track) >= 0
+              service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
+              ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
+              return console.log "not queued - already in playlist" 
 
-          models.player.play track, playlist, position++ if !models.player.playing and position is 0
-          service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-          ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
+            unless track.playable
+              service.message request, "thanks for the request but \"#{decoded.track}\" isn't available in this region yet. pls try again."
+              ç("#results").append(results.notQueued("(Not playable in this region: #{decoded.track})", request)).addClass "appear"
+              return console.log "not queued - not playable in region." 
+
+            playlist.add(track)
+            playlistToSave.add(track) if playlistToSave
+
+            models.player.play track, playlist, position++ if !models.player.playing and position is 0
+            service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
+            ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
 exports.init = init
