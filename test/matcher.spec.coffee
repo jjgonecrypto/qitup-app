@@ -67,4 +67,5 @@ describe "Matcher", ->
       testPattern "play anything by \"the clash\" #twimote", null, "\"the clash\"", true, () ->
         testPattern "by \"the anything clash\" #ev-twimote", null, "\"the anything clash\"", false, () ->
           testPattern "play \"something else\" #twimote", "\"something else\"", null, false, () ->
-            done()
+            testPattern "play * by \"the smiths\" #twimote", null, "\"the smiths\"", true, () ->
+              done()
