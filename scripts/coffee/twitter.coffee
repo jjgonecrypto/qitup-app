@@ -73,6 +73,14 @@ search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
   xhr.open "GET", searchUri(search.query)
+
+  strip = (text, query) ->
+    if query.match(/[^a-zA-Z0-9-_]/g)
+      query = query.replace /[^a-zA-Z0-9-_]/g, (found) -> "\\#{found}"
+      text.replace(new RegExp(query, "gi"), "")
+    else
+      text #dont strip keyword searches (no easy way to tell if within pattern)
+
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
     try
@@ -84,17 +92,16 @@ search = (search, next) ->
       console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
       return console.log "cached - ignoring" if cached search.query, result
       return console.log "past - ignoring" if search.from_date and new Date(result.created_at) < search.from_date
-      tweet = result.text
-      {track, artist, random} = match tweet
-      if (track or artist) 
-        next track, artist, random, 
-          username: result.from_user
-          fullname: result.from_user_name
-          avatar_uri: result.profile_image_url
-          profile_uri: "http://twitter.com/#{result.from_user}"
-          text: tweet
-          id: result.id_str
-      else console.log "nothing matched." 
+      
+      next 
+        username: result.from_user
+        fullname: result.from_user_name
+        avatar_uri: result.profile_image_url
+        profile_uri: "http://twitter.com/#{result.from_user}"
+        stripped: strip result.text, search.query
+        text: result.text
+        id: result.id_str
+
   xhr.send()  
 
 searchUri = (query) ->
@@ -133,36 +140,6 @@ reset = ->
   xhr.abort() if xhr
   xhr = null
   tweetsByQuery = {}
-
-match = (tweet) ->
-
-  regexORList = (array) ->
-    array.map((a) -> "#{a}\\s").join("|").replace(/\s/g,"\\s")
-
-  matchColonSpace = (field, str) ->
-    str.match(new RegExp("(?=#{field}:).+?(?=\\s|$)", "i"))?[0].substr(field.length + 1) or null
-
-  matchQuotes = (field, str) ->
-    str.match(new RegExp("#{field}\\s+(\"|“).+?(\"|”|$)", "i"))?[0].replace(new RegExp("^#{field}+\\s+(?=\"|“)", "i"), "") or null
-
-  matchHasKeyword = (before, targets, str) ->
-    str.match(new RegExp("(#{regexORList(before)})(#{regexORList(targets)})", "i"))?[0]?
-
-  trackPrefixes = ['play','hear','listen','queue']
-  artistPrefixes = ['by', 'artist', 'band']
-  randomPrefixes = ['anything', 'something']
-
-  for trackPrefix in trackPrefixes
-    break if (track = matchColonSpace trackPrefix, tweet) 
-    break if (track = matchQuotes trackPrefix, tweet)
-
-  for artistPrefix in artistPrefixes
-    break if (artist = matchColonSpace artistPrefix, tweet) 
-    break if (artist = matchQuotes artistPrefix, tweet)
-
-  random = matchHasKeyword trackPrefixes, randomPrefixes, tweet
-
-  track: track, artist: artist, random: random 
 
 exports.search = search
 exports.reset = reset
