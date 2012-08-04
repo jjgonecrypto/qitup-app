@@ -2,28 +2,28 @@ sp = getSpotifyApi 1
 
 search = sp.require "/scripts/js/search"
 
-
-queue = undefined
+queue = []
 timeout = undefined
-reset_flag = false
+run = on
 
 reset = () ->
-  reset_flag = true
   clearTimeout timeout if timeout
   queue = []
-  #start timeout of process
+
+turn = (state) -> 
+  run = state
+  clearTimeout timeout if timeout
+  poll() if run 
 
 add = (match, request, callback) ->
   queue.push 
     match: match
     request: request 
     callback: callback
-  reset_flag = false
-  process()
 
 poll = () -> 
-  return reset_flag = false if reset_flag
-  timeout = setTimeout (() -> process()), 1000
+  return if !run
+  timeout = setTimeout (() -> process()), 5000 #5s poll of queue
 
 process = -> 
   entry = queue.shift()
@@ -41,3 +41,4 @@ process = ->
 
 exports.add = add
 exports.reset = reset
+exports.turn = turn

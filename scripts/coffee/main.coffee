@@ -25,6 +25,7 @@ init = ->
 
   ç(".stop-btn").on "click", ->
     clearInterval interval if interval
+    queuer.turn off
     toggle off
 
   ç("#twitter-btn").on "click", ->
@@ -47,7 +48,9 @@ init = ->
         ç(".twitter-status").html "signed out."
         ç("#twitter-service").className "unauth-state"
 
-  ç(".resume-btn").on "click", -> startSearchingOn lastQuery
+  ç(".resume-btn").on "click", -> 
+    startSearchingOn lastQuery
+    queuer.turn on
 
   startSearchingOn = (query) ->
     clearInterval interval if interval
@@ -67,7 +70,7 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
-      queuer.reset()
+      queuer.reset() and queuer.turn on
       ç("#results").html ""
 
     for service in services
@@ -82,7 +85,7 @@ init = ->
 
           console.log "requested: #{match.track} by #{match.artist}", request
           queuer.add match, request, (track, notFound) ->
-            pretty = () => (if match.track then "#{match.track}" else "anything") + (if band then " by #{match.artist}" else "")
+            pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "")
            
             if notFound
               ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
