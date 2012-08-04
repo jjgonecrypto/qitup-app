@@ -4,10 +4,10 @@ models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
 matcher = sp.require "/scripts/js/matcher"
+queuer = sp.require "/scripts/js/queuer"
 
 ç = sp.require("/scripts/js/swah").swah
 
-search = sp.require "/scripts/js/search"
 services = [twitter]
 
 init = ->
@@ -67,6 +67,7 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
+      queuer.reset()
       ç("#results").html ""
 
     for service in services
@@ -80,10 +81,9 @@ init = ->
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
 
           console.log "requested: #{match.track} by #{match.artist}", request
-
-          search.spotify match.track, match.artist, match.random, (track, notFound) ->
+          queuer.add match, request, (track, notFound) ->
             pretty = () => (if match.track then "#{match.track}" else "anything") + (if band then " by #{match.artist}" else "")
-
+           
             if notFound
               ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
               return service.message request, "sorry, couldn't find #{pretty()}. pls try again" 
@@ -110,4 +110,5 @@ init = ->
             models.player.play track, playlist, position++ if !models.player.playing and position is 0
             service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
             ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
+
 exports.init = init
