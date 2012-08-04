@@ -73,6 +73,13 @@ search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
   xhr.open "GET", searchUri(search.query)
+
+  strip = (text, query) ->
+    if query.match(/[^a-zA-Z0-9-_]/g)
+      text.replace(new RegExp(query, "gi"), "")
+    else
+      text #dont strip keyword searches (no easy way to tell if within pattern)
+
   xhr.onreadystatechange = ->
     return unless xhr.readyState is 4
     try
@@ -90,7 +97,7 @@ search = (search, next) ->
         fullname: result.from_user_name
         avatar_uri: result.profile_image_url
         profile_uri: "http://twitter.com/#{result.from_user}"
-        stripped: result.text.replace(new RegExp(search.query, "gi"), "")
+        stripped: strip result.text, search.query
         text: result.text
         id: result.id_str
 
