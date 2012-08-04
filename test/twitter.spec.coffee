@@ -157,13 +157,22 @@ describe "Twitter", ->
 
 
   it "should escape regex characters from the search", (done) ->
-    tweet = "play \"some track first\" by \"my first crush\" $twimote"
+    tweet = "play \"some track first\" by \"my first crush\" $twimote!"
     setResponse [ 
       text: tweet, id: 1
     ]
     callback = sinon.spy()
     twitter.search {query: "$twimote"}, callback    
-    sinon.assert.calledWith(callback, requestStub(tweet, "play \"some track first\" by \"my first crush\" c"))
+    sinon.assert.calledWith(callback, requestStub(tweet, "play \"some track first\" by \"my first crush\" !"))
+
+    tweet = "@testthis play \"some track first\" by \"my first crush\" //cc @testthat"
+    setResponse [ 
+      text: tweet, id: 2
+    ]
+    callback = sinon.spy()
+    twitter.search {query: "@testthis"}, callback    
+    sinon.assert.calledWith(callback, requestStub(tweet, " play \"some track first\" by \"my first crush\" //cc @testthat"))
+
     done()
 
     #TO FIX: escape anything not [a-zA-Z0-9_-] 

@@ -76,6 +76,7 @@ search = (search, next) ->
 
   strip = (text, query) ->
     if query.match(/[^a-zA-Z0-9-_]/g)
+      query = query.replace /[^a-zA-Z0-9-_]/g, (found) -> "\\#{found}"
       text.replace(new RegExp(query, "gi"), "")
     else
       text #dont strip keyword searches (no easy way to tell if within pattern)
