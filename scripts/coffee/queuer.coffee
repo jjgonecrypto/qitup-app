@@ -21,6 +21,8 @@ add = (match, request, callback) ->
     request: request 
     callback: callback
 
+getLength = () -> queue.length
+
 poll = () -> 
   return if !run
   timeout = setTimeout (() -> process()), 5000 #5s poll of queue
@@ -42,3 +44,4 @@ process = ->
 exports.add = add
 exports.reset = reset
 exports.turn = turn
+exports.getLength = getLength
