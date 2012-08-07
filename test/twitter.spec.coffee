@@ -228,9 +228,8 @@ describe "Twitter", ->
     auth.showAuthenticationDialog = (uri, callback_uri, actions) ->
       uri.should.eql "https://api.twitter.com/oauth/authorize?oauth_token=#{oauth_token}"
       callback_uri.should.eql "http://qitup.fm"
-      global.XMLHttpRequest.prototype.send = () ->
-        @responseText = "?oauth_token=#{access_token}&oauth_token_secret=#{access_secret}&user_id=#{user_id}&screen_name=#{screen_name}"
-        @onreadystatechange()
+      global.XMLHttpRequest.prototype.responseText = "?oauth_token=#{access_token}&oauth_token_secret=#{access_secret}&user_id=#{user_id}&screen_name=#{screen_name}"
+      global.XMLHttpRequest.prototype.send = () -> @onreadystatechange()
       if deny then actions.onSuccess "?denied=#{oauth_token}" else actions.onSuccess "?oauth_verifier=#{oauth_verifier}"
 
     twitter.authenticate (response, err) ->
@@ -248,16 +247,19 @@ describe "Twitter", ->
   it "should perform 3-legged authentication with twitter", (done) ->
     twitterSignIn done 
 
-  it "should perform throw error if auth is denied by user", (done) ->
+  it "must perform throw error if auth is denied by user", (done) ->
     twitterSignIn done, true    
 
-  it "should message users via twitter API with correct access token and secret", (done) ->
+  it "must message users via twitter API with correct access token and secret", (done) ->
     tweet = 
       id: "12345"
       username: "justin"
     text = "thanks!"
 
     twitterSignIn () ->
+      global.XMLHttpRequest.prototype.responseText = JSON.stringify
+        text: 
+          id_str: "123"
       global.XMLHttpRequest.prototype.setRequestHeader = (name, header) -> 
         if name is "Authorization"
           header.indexOf("oauth_token=\"#{access_token}\"").should.be.above(0) 
@@ -268,3 +270,20 @@ describe "Twitter", ->
       twitter.message tweet, text, (err, data) ->
         throw err if err 
         done()
+
+  it "must ignore any tweet that comes as a result of any generated message", (done) ->
+    id_str = "1234567890"
+
+    twitterSignIn () ->
+      global.XMLHttpRequest.prototype.responseText = JSON.stringify
+        text: 
+          id_str: id_str
+      twitter.message 
+        id: "12345"
+        username: "justin"
+      , "test", (err, data) ->
+
+        #now try searching twitter for a tweet with that ID and be sure it is ignored
+
+        done()
+
