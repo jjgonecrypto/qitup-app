@@ -11,6 +11,7 @@ queuer = sp.require "/scripts/js/queuer"
 services = [twitter]
 
 init = ->
+  console.log "main.init()"
   lastQuery = undefined
   interval = undefined
   playlist = undefined
