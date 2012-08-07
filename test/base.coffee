@@ -1,4 +1,4 @@
-init = () ->
+init = (map) ->
   should = require "should"
   sinon = require "sinon"
 
@@ -10,7 +10,8 @@ init = () ->
       observe: () ->
 
   global.getSpotifyApi = () -> 
-    require: (module) -> 
+    require: (module) ->
+      return map[module] if map and map[module] 
       return require "../#{module}" unless (module.indexOf "sp://") is 0
       if module is "sp://import/scripts/api/models" 
         models 
