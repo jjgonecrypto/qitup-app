@@ -22,6 +22,7 @@ init = ->
 
   ç(".search-btn").on "click", -> 
     return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
+    from_date = new Date()
     startSearchingOn(ç("#search-type").val() + ç("#query").val())
 
   ç(".stop-btn").on "click", ->
@@ -51,7 +52,6 @@ init = ->
 
   ç(".resume-btn").on "click", -> 
     startSearchingOn lastQuery
-    queuer.turn on
 
   startSearchingOn = (query) ->
     clearInterval interval if interval
@@ -71,7 +71,6 @@ init = ->
       lastQuery = query
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
-      from_date = new Date()
       queuer.reset()
       ç("#results").html ""
 
