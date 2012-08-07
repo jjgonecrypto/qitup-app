@@ -5,7 +5,7 @@ search = sp.require "/scripts/js/search"
 queue = []
 timeout = undefined
 run = on
-interval = 5000
+interval = 1000
 
 reset = () ->
   clearTimeout timeout if timeout
@@ -27,7 +27,7 @@ getLength = () -> queue.length
 
 poll = () -> 
   return if !run
-  timeout = setTimeout (() -> process()), interval #5s poll of queue
+  timeout = setTimeout (() -> process()), interval
 
 process = -> 
   entry = queue.shift()

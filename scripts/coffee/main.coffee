@@ -58,6 +58,7 @@ init = ->
     interval = setInterval (() -> searchServices query), 30*1000
     searchServices query
     toggle on
+    queuer.turn on
     ç(".search-query").html query   
     
   toggle = (state) ->
@@ -71,7 +72,7 @@ init = ->
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
       from_date = new Date()
-      queuer.reset() and queuer.turn on
+      queuer.reset()
       ç("#results").html ""
 
     for service in services
