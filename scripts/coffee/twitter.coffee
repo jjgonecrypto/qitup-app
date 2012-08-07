@@ -121,9 +121,8 @@ message = (tweet, text, done) ->
     in_reply_to_status_id: tweet.id
   , (data) ->
     console.log "tweet sent successfully."
-    done null, data if done
-    console.log data
     ignoreTweets.push JSON.parse(data.text)?.id_str
+    done null, data if done
   , (err) ->
     console.log "error tweeting", err
     done err if done

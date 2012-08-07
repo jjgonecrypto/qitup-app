@@ -274,16 +274,27 @@ describe "Twitter", ->
   it "must ignore any tweet that comes as a result of any generated message", (done) ->
     id_str = "1234567890"
 
+    #sign in
     twitterSignIn () ->
       global.XMLHttpRequest.prototype.responseText = JSON.stringify
-        text: 
-          id_str: id_str
+        id_str: id_str
+      #send system message with id
       twitter.message 
-        id: "12345"
+        id: "123"
         username: "justin"
       , "test", (err, data) ->
 
-        #now try searching twitter for a tweet with that ID and be sure it is ignored
+        setResponse [ 
+          text: "play:song1 by:band1 twimote", id: 1
+        ,
+          text: "thx for that! play:song2 by:band2 twimote", id_str: id_str
+        ] 
+
+        #now search and check id not included
+        callback = sinon.spy()
+        twitter.search {query: "#twimote"}, callback    
+        sinon.assert.calledOnce(callback)
+        sinon.assert.calledWith(callback, requestStub("play:song1 by:band1 twimote"))
 
         done()
 
