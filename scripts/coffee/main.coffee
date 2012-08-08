@@ -113,6 +113,6 @@ init = ->
 
             models.player.play track, playlist, position++ if !models.player.playing and position is 0
             service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-            ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
+            ç("#results").append(results.queued(track, track.artists[0], track.album, request)).addClass "appear"
 
 exports.init = init
