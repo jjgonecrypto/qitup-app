@@ -98,7 +98,7 @@ init = ->
               track: track.name.decodeForText()
               artist: track.artists[0].name.decodeForText()
             
-            if playlist.indexOf(track) >= 0
+            if !ç("#allow-dupes").checked() and playlist.indexOf(track) >= 0
               service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
               ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
               return console.log "not queued - already in playlist" 

@@ -12,6 +12,8 @@ describe "Main", ->
 
   it "should handle already played state"
 
+  it "must not queue a song that has already been in the queue if allow dupes is off"
+
   it "should handle non-playable tracks"
 
   it "should add to existing playlist"
