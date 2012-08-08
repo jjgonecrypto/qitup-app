@@ -3,10 +3,11 @@ sp = getSpotifyApi 1
 templator = sp.require "/scripts/js/templator"
 helper = sp.require "/scripts/js/helper"
 
-queued = (track, artist, request) ->
+queued = (track, artist, album, request) ->
   templator.process "/views/result-queued.html", 
     track: track
     artist: artist
+    album: album
     request: request
     helper: helper
 

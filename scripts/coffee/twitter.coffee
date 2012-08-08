@@ -17,6 +17,7 @@ xhr = undefined
 api = undefined
 
 tweetsByQuery = {}
+ignoreTweets = []
 
 parseUri = (uri, key) ->
   uri.match(new RegExp("#{key}=.+?(?=$|&)"))?[0].substr("#{key}=".length) ? console.log("no match for #{key}!")
@@ -92,7 +93,8 @@ search = (search, next) ->
       console.log "tweet found: \"#{result.text.substr(0, 50)}...\" by @#{result.from_user}" 
       return console.log "cached - ignoring" if cached search.query, result
       return console.log "past - ignoring" if search.from_date and new Date(result.created_at) < search.from_date
-      
+      return console.log "self-tweet - ignoring" unless ignoreTweets.indexOf(result.id_str) is -1
+
       next 
         username: result.from_user
         fullname: result.from_user_name
@@ -119,6 +121,7 @@ message = (tweet, text, done) ->
     in_reply_to_status_id: tweet.id
   , (data) ->
     console.log "tweet sent successfully."
+    ignoreTweets.push JSON.parse(data.text)?.id_str
     done null, data if done
   , (err) ->
     console.log "error tweeting", err
@@ -140,6 +143,7 @@ reset = ->
   xhr.abort() if xhr
   xhr = null
   tweetsByQuery = {}
+  ignoreTweets = []
 
 exports.search = search
 exports.reset = reset

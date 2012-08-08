@@ -15,10 +15,11 @@ models.session.observe models.EVENT.STATECHANGED, () ->
     endCurrentSearch("disconnected") if endCurrentSearch instanceof Function
 
 
-spotify = (title, artist, random, done) ->
+spotify = (title, artist, album, random, done) ->
   query = ""
   query += " track:#{title}" if title
   query += " artist:#{artist}" if artist
+  query += " album:#{album}" if album
   search = new models.Search query
 
   complete = () -> 
