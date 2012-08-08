@@ -1,7 +1,7 @@
 Queue It Up! 
 =====================
 
-__version__: 0.3 (august 8, 2012)
+__version__: 0.4 (in development)
 
 a Spotify app to control a playlist via a twitter hashtag
 
