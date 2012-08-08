@@ -5,7 +5,7 @@ __version__: 0.3 (in development)
 
 a Spotify app to control a playlist via a twitter hashtag
 
-<img src="http://i.imgur.com/xPrr4.png" width="75%" />
+<img src="http://i.imgur.com/vS8h9.jpg" width="75%" />
 
 
 use cases
