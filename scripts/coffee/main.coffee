@@ -22,6 +22,7 @@ init = ->
 
   ç(".search-btn").on "click", -> 
     return ç("#query").className("invalid") unless ç("#query").val().trim().length > 0
+    from_date = new Date()
     startSearchingOn(ç("#search-type").val() + ç("#query").val())
 
   ç(".stop-btn").on "click", ->
@@ -51,7 +52,6 @@ init = ->
 
   ç(".resume-btn").on "click", -> 
     startSearchingOn lastQuery
-    queuer.turn on
 
   startSearchingOn = (query) ->
     clearInterval interval if interval
@@ -71,7 +71,6 @@ init = ->
       lastQuery = query
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
-      from_date = new Date()
       queuer.reset()
       ç("#results").html ""
 
@@ -85,9 +84,9 @@ init = ->
             console.log "no match for tweet", request.text
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
 
-          console.log "requested: #{match.track} by #{match.artist}", request
+          console.log "requested: #{match.track} by #{match.artist} from #{match.album}", request
           queuer.add match, request, (track, notFound) ->
-            pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "")
+            pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "") + (if match.album then " off #{match.album}" else "")
            
             if notFound
               ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"
@@ -99,7 +98,7 @@ init = ->
               track: track.name.decodeForText()
               artist: track.artists[0].name.decodeForText()
             
-            if playlist.indexOf(track) >= 0
+            if !ç("#allow-dupes").checked() and playlist.indexOf(track) >= 0
               service.message request, "thanks for the request but \"#{decoded.track}\" has already been played in this playlist"
               ç("#results").append(results.notQueued("(Already in queue: #{decoded.track})", request)).addClass "appear"
               return console.log "not queued - already in playlist" 
@@ -114,6 +113,6 @@ init = ->
 
             models.player.play track, playlist, position++ if !models.player.playing and position is 0
             service.message request, "thanks! we queued up \"#{decoded.track}\" by \"#{decoded.artist}\""
-            ç("#results").append(results.queued(track, track.artists[0], request)).addClass "appear"
+            ç("#results").append(results.queued(track, track.artists[0], track.album, request)).addClass "appear"
 
 exports.init = init

@@ -34,7 +34,7 @@ process = ->
   
   return poll() unless entry 
 
-  search.spotify entry.match.track, entry.match.artist, entry.match.random, (track, notFound, err) ->
+  search.spotify entry.match.track, entry.match.artist, entry.match.album, entry.match.random, (track, notFound, err) ->
     if err 
       queue.unshift(entry)
       console.log("error so trying again")

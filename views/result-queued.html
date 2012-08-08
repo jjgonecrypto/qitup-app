@@ -1,7 +1,11 @@
 <li class="found">
   <ul class="inline">
     <li>#{helper.image(track.image)}</li>
-    <li class='track'><div class="track-name">#{track.name}</div>by <a href=\"#{artist.uri}\">#{artist.name}</a></li>
+    <li class='track'>
+      <div class="track-name">#{track.name}</div>
+      <div>by <a href=\"#{artist.uri}\">#{artist.name}</a></div>
+      <div class="album">from <a href=\"#{album.uri}\">#{album.name} (#{album.year})</a></div>
+    </li>
     <li>#{helper.image(request.avatar_uri)}</li>
     <li class='user'>
       <a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />
