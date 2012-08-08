@@ -84,9 +84,9 @@ init = ->
             console.log "no match for tweet", request.text
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
 
-          console.log "requested: #{match.track} by #{match.artist}", request
+          console.log "requested: #{match.track} by #{match.artist} from #{match.album}", request
           queuer.add match, request, (track, notFound) ->
-            pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "")
+            pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "") + (if match.album then " off #{match.album}" else "")
            
             if notFound
               ç("#results").append(results.notQueued("(Spotify couldn't find: #{pretty()})", request)).addClass "appear"

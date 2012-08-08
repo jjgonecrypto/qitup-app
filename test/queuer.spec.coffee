@@ -3,7 +3,7 @@ notFound = undefined
 error = undefined
 
 search = 
-  spotify: (title, artist, random, done) -> done track, notFound, error #found result
+  spotify: (title, artist, album, random, done) -> done track, notFound, error #found result
 
 {should, sinon, auth} = require("./base")
   "/scripts/js/search": search
@@ -124,7 +124,7 @@ describe "Queuer", ->
   it "should recall indefinitely if errors in search", (done) ->
     callcount = 0
 
-    search.spotify = (t, a, r, done) -> 
+    search.spotify = (t, b, a, r, done) -> 
       callcount++
       done null, false, "some error"
 
@@ -138,7 +138,7 @@ describe "Queuer", ->
       sinon.assert.notCalled spy
       callcount.should.eql i
 
-    search.spotify = (t, a, r, done) -> done track
+    search.spotify = (t, b, a, r, done) -> done track
     clock.tick 101
     sinon.assert.calledOnce spy
     sinon.assert.calledWith spy, track
