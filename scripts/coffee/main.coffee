@@ -3,12 +3,13 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
+facebook = sp.require "/scripts/js/facebook"
 matcher = sp.require "/scripts/js/matcher"
 queuer = sp.require "/scripts/js/queuer"
 
 ç = sp.require("/scripts/js/swah").swah
 
-services = [twitter]
+services = [twitter, facebook]
 
 init = ->
   console.log "main.init()"
@@ -78,7 +79,7 @@ init = ->
       service.search 
         query: query
         from_date: if ç("#from-now").checked() then from_date else null
-      , (request) ->
+      , (request, service) ->
         matcher.match request.stripped, (match) ->
           unless match
             console.log "no match for tweet", request.text
