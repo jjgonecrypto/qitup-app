@@ -18,19 +18,21 @@ postsByQuery = {}
 ignorePosts = []
 
 authenticate = (done) ->
-  throw "not implemented"
+  console.log "facebook.authenticate: not implemented"
+  done()
   #todo
 
 signout = (done) ->
-  throw "not implemented"
-  #todo
+  console.log "facebook.signout: not implemented"
+  done()
+  #done
 
 search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
   xhr.open "GET", searchUri(search.query)
   service = @
-  
+
   strip = (text, query) ->
     if query.match(/[^a-zA-Z0-9-_]/g)
       query = query.replace /[^a-zA-Z0-9-_]/g, (found) -> "\\#{found}"
@@ -44,6 +46,9 @@ search = (search, next) ->
       result = JSON.parse(xhr.responseText)
     catch err
       return
+
+    return unless result.data.length > 0
+
     setLastId search.query, helper.parseUri(result.paging.previous, "since")
     result.data.reverse().forEach (entry) ->
       console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
@@ -72,7 +77,7 @@ logged_in = () -> api.status is true
 
 message = (post, text, done) ->
   console.log "facebook.message: not implemented"
-  done()
+  done() if done
   #todo
 
 setLastId = (query, last_id) ->
@@ -95,3 +100,4 @@ reset = ->
 
 exports.search = search
 exports.reset = reset
+exports.message = message
