@@ -9,8 +9,7 @@ queuer = sp.require "/scripts/js/queuer"
 
 ç = sp.require("/scripts/js/swah").swah
 
-#services = [twitter, facebook]
-services = [facebook]
+services = [twitter, facebook]
 
 init = ->
   console.log "main.init()"
@@ -98,7 +97,7 @@ init = ->
       , (request, service) ->
         matcher.match request.stripped, (match) ->
           unless match
-            console.log "no match for tweet", request.text
+            console.log "no match for request:", request.text
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
  
           console.log "requested: #{match.track} by #{match.artist} from #{match.album}", request
