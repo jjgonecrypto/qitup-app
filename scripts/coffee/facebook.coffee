@@ -11,11 +11,15 @@ url =
   search: "https://graph.facebook.com/search"
   picture: (id) -> "https://graph.facebook.com/#{id}/picture"
   feed: (username) -> "https://graph.facebook.com/#{username}/feed"
+  comment: (id) -> "https://graph.facebook.com/#{id}/comments"
 
 xhr = undefined
+xhr2 = undefined
+xhr3 = undefined
+
 api = {}
 
-permissions = ['manage_pages']
+permissions = ['manage_pages', 'publish_stream']
 postsByQuery = {}
 ignorePosts = []
 
@@ -35,9 +39,13 @@ authenticate = (done) ->
       result null, errs
 
 signout = (done) ->
-  console.log "facebook.signout: not implemented"
-  done()
-  #done
+  xhr3.abort() if xhr3
+  xhr3 = new XMLHttpRequest()
+  xhr3.open "GET", "https://www.facebook.com/logout.php?next=http://qitup.fm" + "&access_token=#{api.accessToken}" 
+  xhr3.onreadystatechange = ->
+    return unless xhr3.readyState is 4
+    done() if done
+  xhr3.send()
 
 search = (search, next) ->
   return console.log "cannot search fbook without auth" unless api.status
@@ -67,7 +75,7 @@ search = (search, next) ->
 
     setLastId search.query, helper.parseUri(result.paging.previous, "since")
     result.data.reverse().forEach (entry) ->
-      return unless entry.message
+      return unless entry.message and entry.id
       console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
       return console.log "cached - ignoring" if cached search.query, entry
       return console.log "past - ignoring" if search.from_date and new Date(entry.created_time) < search.from_date
@@ -93,10 +101,17 @@ searchUri = (query) ->
 ###
 logged_in = () -> api.status is true
 
+
+
 message = (post, text, done) ->
-  console.log "facebook.message: not implemented"
-  done() if done
-  #todo
+
+  xhr2.abort() if xhr2
+  xhr2 = new XMLHttpRequest()
+  xhr2.open "GET", url.comment(post.id) + "?access_token=#{api.accessToken}&method=post&format=json&message=#{encodeURIComponent(text)}" 
+  xhr2.onreadystatechange = ->
+    return unless xhr2.readyState is 4
+    done() if done
+  xhr2.send()
 
 setLastId = (query, last_id) ->
   initCacheFor query
@@ -121,4 +136,5 @@ exports.search = search
 exports.reset = reset
 exports.authenticate = authenticate
 exports.signout = signout
+exports.logged_in = logged_in
 exports.message = message

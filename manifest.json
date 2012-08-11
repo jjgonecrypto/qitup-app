@@ -19,7 +19,8 @@
 	    "https://api.twitter.com",
 	    "http://search.twitter.com",
 	    "http://a0.twimg.com",
-	    "https://graph.facebook.com"
+	    "https://graph.facebook.com",
+	    "https://www.facebook.com"
 	],
 	"DefaultTabs": [
 		{ "arguments": "index", "title": {"en": "Stream"}},

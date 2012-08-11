@@ -59,6 +59,14 @@ init = ->
         ç(".twitter-status").html "signed out."
         ç("#twitter-service").className "unauth-state"
 
+  ç("#facebook-signout-btn").on "click", ->
+    facebook.signout (err) ->
+      if err
+        ç(".facebook-status").html "error signing out. please try again."
+      else
+        ç(".facebook-status").html "signed out."
+        ç("#facebook-service").className "unauth-state"
+
   ç(".resume-btn").on "click", -> 
     startSearchingOn lastQuery
 
