@@ -1,7 +1,7 @@
 sp = getSpotifyApi 1
 
 auth = sp.require "sp://import/scripts/api/auth"
-#keys = sp.require "/scripts/js/service-keys"
+keys = sp.require "/scripts/js/service-keys"
 helper = sp.require "/scripts/js/helper"
 
 jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5"
@@ -10,17 +10,29 @@ jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 url = 
   search: "https://graph.facebook.com/search"
   picture: (id) -> "https://graph.facebook.com/#{id}/picture"
+  feed: (username) -> "https://graph.facebook.com/#{username}/feed"
 
 xhr = undefined
-api = undefined
+api = {}
 
+permissions = ['manage_pages']
 postsByQuery = {}
 ignorePosts = []
 
 authenticate = (done) ->
-  console.log "facebook.authenticate: not implemented"
-  done()
-  #todo
+  result = (response, err) ->
+    api.status = response? and (err is undefined or err is null)
+    api.accessToken = response
+    done response, err
+
+  auth.authenticateWithFacebook keys.facebook.appID, permissions, 
+    onSuccess: (accessToken, ttl) ->
+      console.log "Facebook auth successful!", accessToken, ttl
+      result accessToken
+
+    onFailure: (error) -> 
+      console.log 'Facebook authentication failed', error
+      result null, errs
 
 signout = (done) ->
   console.log "facebook.signout: not implemented"
@@ -28,9 +40,13 @@ signout = (done) ->
   #done
 
 search = (search, next) ->
+  return console.log "cannot search fbook without auth" unless api.status
+
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
-  xhr.open "GET", searchUri(search.query)
+  uri = "#{url.feed(search.query)}?access_token=#{api.accessToken}&limit=100"
+  uri += "&since=#{postsByQuery[search.query].last_id}" if postsByQuery[search.query]?.last_id
+  xhr.open "GET", uri
   service = @
 
   strip = (text, query) ->
@@ -51,6 +67,7 @@ search = (search, next) ->
 
     setLastId search.query, helper.parseUri(result.paging.previous, "since")
     result.data.reverse().forEach (entry) ->
+      return unless entry.message
       console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
       return console.log "cached - ignoring" if cached search.query, entry
       return console.log "past - ignoring" if search.from_date and new Date(entry.created_time) < search.from_date
@@ -68,11 +85,12 @@ search = (search, next) ->
 
   xhr.send()  
 
+###
 searchUri = (query) ->
   uri = "#{url.search}?limit=100&q=#{encodeURIComponent(query)}"
   uri += "&since=#{postsByQuery[query].last_id}" if postsByQuery[query]?.last_id
   uri
-
+###
 logged_in = () -> api.status is true
 
 message = (post, text, done) ->
@@ -97,7 +115,10 @@ reset = ->
   xhr = null
   postsByQuery = {}
   ignorePosts = []
+  api = {}
 
 exports.search = search
 exports.reset = reset
+exports.authenticate = authenticate
+exports.signout = signout
 exports.message = message

@@ -17,7 +17,7 @@
           <select id="search-type"><option value="#"># hashtag</option><option value="@">@ user mention</option><option value="">any keyword</option></select>
           <input type="text" id="query" /> via 
           <a href="#twitter-service">Twitter</a>
-          <a class="disabled">Facebook</a>
+          <a href="#facebook-service">Facebook</a>
           <br />
           <input type="checkbox" id="from-now" /><label class="for-checkbox" for="from-now">Exclude past results</label> 
           <input type="checkbox" id="save-playlist" /><label class="for-checkbox" for="save-playlist">Save as playlist</label>
@@ -62,6 +62,19 @@
           <strong>Status: </strong> 
           <span class="twitter-status" id="twitter-user"></span>
           <button id="twitter-signout-btn" class="sp-button">Logout</button> 
+        </div>
+      </div>
+      <div id="facebook-service" class="unauth-state">
+        <div class="controls"><a href="#">X</a></div>
+        <div class="unauth">
+          <strong>Status: </strong> 
+          <span class="facebook-status">not logged in. Sign in for more options. </span> 
+          <button id="facebook-btn" class="sp-button">Sign into Facebook</button> 
+        </div>
+        <div class="auth">
+          <strong>Status: </strong> 
+          <span class="facebook-status" id="facebook-user"></span>
+          <button id="facebook-signout-btn" class="sp-button" disabled="disabled">Logout</button> 
         </div>
       </div>
     </div>

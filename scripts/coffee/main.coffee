@@ -9,7 +9,8 @@ queuer = sp.require "/scripts/js/queuer"
 
 ç = sp.require("/scripts/js/swah").swah
 
-services = [twitter, facebook]
+#services = [twitter, facebook]
+services = [facebook]
 
 init = ->
   console.log "main.init()"
@@ -37,6 +38,13 @@ init = ->
       console.log response
       ç(".twitter-status").html "successfully signed in as <a class='twitter-username' href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
       ç("#twitter-service").className "auth-state"
+
+  ç("#facebook-btn").on "click", ->
+    facebook.authenticate (response, err) ->
+      return console.log("err: ", err) if err
+      console.log response
+      ç(".facebook-status").html "successfully signed in"
+      ç("#facebook-service").className "auth-state"
 
   ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"
@@ -84,7 +92,7 @@ init = ->
           unless match
             console.log "no match for tweet", request.text
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
-
+ 
           console.log "requested: #{match.track} by #{match.artist} from #{match.album}", request
           queuer.add match, request, (track, notFound) ->
             pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "") + (if match.album then " off #{match.album}" else "")

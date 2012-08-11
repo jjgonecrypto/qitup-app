@@ -161,10 +161,20 @@ ul.results
     &:target 
       max-height 100px
       padding 1em 
-
+  
     .twitter-username
       font-weight bold
-      
+
+  #facebook-service
+    background-color pink
+    max-height 0
+    -webkit-transition max-height 1s
+    -webkit-transition padding 0.5s
+
+    &:target
+      max-height 100px
+      padding 1em 
+
   .unauth 
     display none
   .auth
