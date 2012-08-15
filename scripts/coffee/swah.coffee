@@ -70,12 +70,11 @@ swah.ajax = (options) ->
     try 
       response = JSON.parse @responseText
     catch err
-      fail err if err
-      return
+      response = @responseText
     unless @status is 200
       fail response, @status if fail
       return 
-    done response if done
+    done response, @status if done
     always() if always
   xhr.send(if options?.data then options.data else {})
   promise
