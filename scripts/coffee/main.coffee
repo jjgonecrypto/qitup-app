@@ -44,6 +44,9 @@ init = ->
       console.log response
       ç(".facebook-status").html "successfully signed in"
       ç("#facebook-service").className "auth-state"
+    , (errResponse, statusCode) ->
+      ç(".facebook-status").html "facebook service signed out. please login again."
+      ç("#facebook-service").className "unauth-state"
 
   ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"

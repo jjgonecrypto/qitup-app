@@ -22,8 +22,10 @@ api = {}
 permissions = ['manage_pages', 'publish_stream']
 postsByQuery = {}
 ignorePosts = []
+onExpired = undefined
 
-authenticate = (done) ->
+authenticate = (done, expired) ->
+  onExpired = expired if expired instanceof Function
   result = (response, err) ->
     api.status = response? and (err is undefined or err is null)
     api.accessToken = response
@@ -44,16 +46,17 @@ signout = (done) ->
   xhr3.open "GET", "https://www.facebook.com/logout.php?next=http://qitup.fm" + "&access_token=#{api.accessToken}" 
   xhr3.onreadystatechange = ->
     return unless xhr3.readyState is 4
+    api.status = false
     done() if done
   xhr3.send()
 
-search = (search, next) ->
+search = (request, next) ->
   return console.log "cannot search fbook without auth" unless api.status
 
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
-  uri = "#{url.feed(search.query)}?access_token=#{api.accessToken}&limit=100"
-  uri += "&since=#{postsByQuery[search.query].last_id}" if postsByQuery[search.query]?.last_id
+  uri = "#{url.feed(request.query)}?access_token=#{api.accessToken}&limit=100"
+  uri += "&since=#{postsByQuery[request.query].last_id}" if postsByQuery[request.query]?.last_id
   xhr.open "GET", uri
   service = @
 
@@ -69,16 +72,28 @@ search = (search, next) ->
     try
       result = JSON.parse(xhr.responseText)
     catch err
-      return
+      return console.log "couldn't parse response from Facebook.", err, xhr
 
+    if xhr.status is 400 and result.error.code is 190 and result.error.error_subcode is 463
+      console.log "facebook auth expired. automatically reauthing.", result.error
+      api.status = false
+      authenticate (response, err) ->
+        return console.log err if err
+        return search request, next
+
+    if xhr.status != 200
+      api.status = false
+      onExpired(result, xhr.status) if onExpired
+      return console.log "facebook request returned a #{xhr.status}", result
+      
     return unless result.data.length > 0
 
-    setLastId search.query, helper.parseUri(result.paging.previous, "since")
+    setLastId request.query, helper.parseUri(result.paging.previous, "since")
     result.data.reverse().forEach (entry) ->
       return unless entry.message and entry.id
       console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
-      return console.log "cached - ignoring" if cached search.query, entry
-      return console.log "past - ignoring" if search.from_date and new Date(entry.created_time) < search.from_date
+      return console.log "cached - ignoring" if cached request.query, entry
+      return console.log "past - ignoring" if request.from_date and new Date(entry.created_time) < request.from_date
       return console.log "self-message - ignoring" unless ignorePosts.indexOf(entry.id) is -1
 
       next 
@@ -86,7 +101,7 @@ search = (search, next) ->
         fullname: entry.from.name
         avatar_uri: url.picture(entry.from.id)
         profile_uri: "http://facebook.com/#{entry.from.id}"
-        stripped: strip entry.message, search.query
+        stripped: strip entry.message, request.query
         text: entry.message
         id: entry.id
       , service
