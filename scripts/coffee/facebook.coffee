@@ -14,11 +14,9 @@ url =
   picture: (id) -> "https://graph.facebook.com/#{id}/picture"
   feed: (username) -> "https://graph.facebook.com/#{username}/feed"
   comment: (id) -> "https://graph.facebook.com/#{id}/comments"
+  logout: "https://www.facebook.com/logout.php?next=http://qitup.fm"
 
-searchRequest = undefined
-xhr2 = undefined
-xhr3 = undefined
-
+ajax = {}
 api = {}
 
 permissions = ['manage_pages', 'publish_stream']
@@ -43,14 +41,15 @@ authenticate = (done, expired) ->
       result null, errs
 
 signout = (done) ->
-  xhr3.abort() if xhr3
-  xhr3 = new XMLHttpRequest()
-  xhr3.open "GET", "https://www.facebook.com/logout.php?next=http://qitup.fm" + "&access_token=#{api.accessToken}" 
-  xhr3.onreadystatechange = ->
-    return unless xhr3.readyState is 4
+  ajax.logout.abort() if ajax.logout
+
+  ajax.logout = ç.ajax
+    uri: "#{url.logout}&access_token=#{api.accessToken}" 
+  .done (result) ->
     api.status = false
     done() if done
-  xhr3.send()
+  .fail (err, status) ->
+    done err if done
 
 search = (request, next) ->
   return console.log "cannot search fbook without auth" unless api.status
@@ -63,9 +62,9 @@ search = (request, next) ->
       text #dont strip keyword searches (no easy way to tell if within pattern)
   
   service = @      
-  searchRequest.abort() if searchRequest
+  ajax.search.abort() if ajax.search
   
-  ç.ajax
+  ajax.search = ç.ajax
     uri: searchUri(request.query)
   .done (result) ->
     return unless result.data.length > 0
@@ -109,17 +108,14 @@ searchUri = (query) ->
   
 logged_in = () -> api.status is true
 
-
-
 message = (post, text, done) ->
-
-  xhr2.abort() if xhr2
-  xhr2 = new XMLHttpRequest()
-  xhr2.open "GET", url.comment(post.id) + "?access_token=#{api.accessToken}&method=post&format=json&message=#{encodeURIComponent(text)}" 
-  xhr2.onreadystatechange = ->
-    return unless xhr2.readyState is 4
+  ajax.post.abort() if ajax.post
+  ajax.post = ç.ajax
+    uri: url.comment(post.id) + "?access_token=#{api.accessToken}&method=post&format=json&message=#{encodeURIComponent(text)}" 
+  .done (result) ->
     done() if done
-  xhr2.send()
+  .fail (err, status) ->
+    done err if done
 
 setLastId = (query, last_id) ->
   initCacheFor query
@@ -134,11 +130,10 @@ cached = (query, post) ->
 initCacheFor = (query) -> postsByQuery[query]?= {}
 
 reset = -> 
-  xhr.abort() if xhr
-  xhr = null
   postsByQuery = {}
   ignorePosts = []
   api = {}
+  ajax = {}
 
 exports.search = search
 exports.reset = reset
