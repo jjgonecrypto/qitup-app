@@ -4,6 +4,8 @@ auth = sp.require "sp://import/scripts/api/auth"
 keys = sp.require "/scripts/js/service-keys"
 helper = sp.require "/scripts/js/helper"
 
+ç = sp.require("/scripts/js/swah").swah
+
 jsOAuth = sp.require "/scripts/3rd/jsOAuth-1.3.5"
 jsOAuth.XMLHttpRequest = XMLHttpRequest #get around jsOAuth browser limitation
 
@@ -13,7 +15,7 @@ url =
   feed: (username) -> "https://graph.facebook.com/#{username}/feed"
   comment: (id) -> "https://graph.facebook.com/#{id}/comments"
 
-xhr = undefined
+searchRequest = undefined
 xhr2 = undefined
 xhr3 = undefined
 
@@ -53,41 +55,20 @@ signout = (done) ->
 search = (request, next) ->
   return console.log "cannot search fbook without auth" unless api.status
 
-  xhr.abort() if xhr
-  xhr = new XMLHttpRequest()
-  uri = "#{url.feed(request.query)}?access_token=#{api.accessToken}&limit=100"
-  uri += "&since=#{postsByQuery[request.query].last_id}" if postsByQuery[request.query]?.last_id
-  xhr.open "GET", uri
-  service = @
-
   strip = (text, query) ->
     if query.match(/[^a-zA-Z0-9-_]/g)
       query = query.replace /[^a-zA-Z0-9-_]/g, (found) -> "\\#{found}"
       text.replace(new RegExp(query, "gi"), "")
     else
       text #dont strip keyword searches (no easy way to tell if within pattern)
-
-  xhr.onreadystatechange = ->
-    return unless xhr.readyState is 4
-    try
-      result = JSON.parse(xhr.responseText)
-    catch err
-      return console.log "couldn't parse response from Facebook.", err, xhr
-
-    if xhr.status is 400 and result.error.code is 190 and result.error.error_subcode is 463
-      console.log "facebook auth expired. automatically reauthing.", result.error
-      api.status = false
-      authenticate (response, err) ->
-        return console.log err if err
-        return search request, next
-
-    if xhr.status != 200
-      api.status = false
-      onExpired(result, xhr.status) if onExpired
-      return console.log "facebook request returned a #{xhr.status}", result
-      
+  
+  service = @      
+  searchRequest.abort() if searchRequest
+  
+  ç.ajax
+    uri: searchUri(request.query)
+  .done (result) ->
     return unless result.data.length > 0
-
     setLastId request.query, helper.parseUri(result.paging.previous, "since")
     result.data.reverse().forEach (entry) ->
       return unless entry.message and entry.id
@@ -106,14 +87,26 @@ search = (request, next) ->
         id: entry.id
       , service
 
-  xhr.send()  
+  .fail (err, status) ->
+    console.log "error!", err, status
+    if status is 400 and err.error.code is 190 and err.error.error_subcode is 463
+      console.log "facebook auth expired. automatically reauthing.", err.error
+      api.status = false
+      authenticate (response, err) ->
+        return console.log err if err
+        return search request, next
+    else
+      api.status = false
+      onExpired(err, status) if onExpired
+      return console.log "facebook request returned a #{status}", err
 
-###
+
+
 searchUri = (query) ->
-  uri = "#{url.search}?limit=100&q=#{encodeURIComponent(query)}"
+  uri = "#{url.feed(query)}?access_token=#{api.accessToken}&limit=100"
   uri += "&since=#{postsByQuery[query].last_id}" if postsByQuery[query]?.last_id
   uri
-###
+  
 logged_in = () -> api.status is true
 
 

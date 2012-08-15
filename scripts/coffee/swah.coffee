@@ -44,5 +44,40 @@ swah = (selector) ->
         else
           found += item.value if item?.value
       found
-      
+
+swah.ajax = (options) ->
+  done = undefined
+  fail = undefined
+  always = undefined
+  uri = if options instanceof String then options else options?.uri
+  type = if options?.type then options.type else 'GET'
+  xhr = new XMLHttpRequest()
+  xhr.open type, uri
+  promise =
+    xhr: xhr 
+    abort: () -> @xhr.abort()
+    done: (callback) -> 
+      done = callback
+      promise
+    fail: (callback) -> 
+      fail = callback
+      promise 
+    always: (callback) -> 
+      always = callback
+      promise
+  xhr.onreadystatechange = ->
+    return unless @readyState is 4
+    try 
+      response = JSON.parse @responseText
+    catch err
+      fail err if err
+      return
+    unless @status is 200
+      fail response, @status if fail
+      return 
+    done response if done
+    always() if always
+  xhr.send(if options?.data then options.data else {})
+  promise
+
 exports.swah = swah
