@@ -74,6 +74,7 @@ search = (search, next) ->
   xhr.abort() if xhr
   xhr = new XMLHttpRequest()
   xhr.open "GET", searchUri(search.query)
+  service = @
 
   strip = (text, query) ->
     if query.match(/[^a-zA-Z0-9-_]/g)
@@ -103,7 +104,7 @@ search = (search, next) ->
         stripped: strip result.text, search.query
         text: result.text
         id: result.id_str
-
+      , service
   xhr.send()  
 
 searchUri = (query) ->

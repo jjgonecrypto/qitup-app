@@ -298,3 +298,4 @@ describe "Twitter", ->
 
         done()
 
+  it "must return itself (the service) on query processed " #JM: this should go into generic service class

@@ -3,12 +3,13 @@ sp = getSpotifyApi 1
 models = sp.require "sp://import/scripts/api/models"
 results = sp.require "/scripts/js/results"
 twitter = sp.require "/scripts/js/twitter"
+facebook = sp.require "/scripts/js/facebook"
 matcher = sp.require "/scripts/js/matcher"
 queuer = sp.require "/scripts/js/queuer"
 
 ç = sp.require("/scripts/js/swah").swah
 
-services = [twitter]
+services = [twitter, facebook]
 
 init = ->
   console.log "main.init()"
@@ -37,6 +38,16 @@ init = ->
       ç(".twitter-status").html "successfully signed in as <a class='twitter-username' href='http://twitter.com/#{response.screen_name}'>@#{response.screen_name}</a>"
       ç("#twitter-service").className "auth-state"
 
+  ç("#facebook-btn").on "click", ->
+    facebook.authenticate (response, err) ->
+      return console.log("err: ", err) if err
+      console.log response
+      ç(".facebook-status").html "successfully signed in"
+      ç("#facebook-service").className "auth-state"
+    , (errResponse, statusCode) ->
+      ç(".facebook-status").html "facebook service signed out. please login again."
+      ç("#facebook-service").className "unauth-state"
+
   ç(".new-search-btn").on "click", ->
     ç("#powerbar").className "new-state"
     ç("#query").val ""
@@ -49,6 +60,14 @@ init = ->
       else
         ç(".twitter-status").html "signed out."
         ç("#twitter-service").className "unauth-state"
+
+  ç("#facebook-signout-btn").on "click", ->
+    facebook.signout (err) ->
+      if err
+        ç(".facebook-status").html "error signing out. please try again."
+      else
+        ç(".facebook-status").html "signed out."
+        ç("#facebook-service").className "unauth-state"
 
   ç(".resume-btn").on "click", -> 
     startSearchingOn lastQuery
@@ -78,12 +97,12 @@ init = ->
       service.search 
         query: query
         from_date: if ç("#from-now").checked() then from_date else null
-      , (request) ->
+      , (request, service) ->
         matcher.match request.stripped, (match) ->
           unless match
-            console.log "no match for tweet", request.text
+            console.log "no match for request:", request.text
             return ç("#results").append(results.notQueued("(QItUp couldn't find a song request.", request)).addClass "appear"
-
+ 
           console.log "requested: #{match.track} by #{match.artist} from #{match.album}", request
           queuer.add match, request, (track, notFound) ->
             pretty = () => (if match.track then "#{match.track}" else "anything") + (if match.artist then " by #{match.artist}" else "") + (if match.album then " off #{match.album}" else "")
