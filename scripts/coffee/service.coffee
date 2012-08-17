@@ -1,12 +1,14 @@
 class Service
-  constructor: (@options) ->
-    @reset()
-
   reset: () ->
-    @queryCache = {}
+    @cache = {}
     @ignore = []
     @onDeauth = undefined
     @authenticated = false
+    @criteria = {}
+
+  constructor: (@options = {}) ->
+    @reset()
+    @criteria = options.criteria if options.criteria
 
   authenticate: (done, onDeauth) ->
     @onDeauth = onDeauth
@@ -21,22 +23,13 @@ class Service
     #perhaps this shouldn't have a done() callback but rather triggers onDeauth
 
 
-  criteria: () ->
-    #controls how the search should be for a channel
-
-    #eg. 
-      #facebook -
-        #users: tiltnyc, justinjmoses
-        #keywords: tiltcookout, tiltnyc
-        #from_now: Date
-
-      #twitter
-        #users: tiltnyc
-        #keywords: tiltnyc
-        #from_now: Date  
+  setCriteria: (criteria) ->
+    @criteria = criteria
 
   search: (next) ->
     #call search implementation....
+
+    #(uses @criteria)
 
   message: (post, text, done) ->
     #call implementation to msg 
