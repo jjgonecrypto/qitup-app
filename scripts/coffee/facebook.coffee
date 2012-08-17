@@ -94,11 +94,12 @@ search = (request, next) ->
       authenticate (response, err) ->
         return console.log err if err
         return search request, next
-    else
+    else if status is 400 and err.error.code is 190
       api.status = false
       onExpired(err, status) if onExpired
-      return console.log "facebook request returned a #{status}", err
-
+      return console.log "facebook request returned a 400 (fbook code 190)", err
+    else
+      return console.log "facebook request returned a #{status}", err  
 
 
 searchUri = (query) ->
