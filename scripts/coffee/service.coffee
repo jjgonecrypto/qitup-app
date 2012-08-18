@@ -29,14 +29,13 @@ class Service
 
   search: (next) ->
     @service.search
-    
+    #cache result
 
+    
   message: (post, text, done) ->
-    #call implementation to msg 
-    #on success ->
+    @doMessage post, text, (err) ->
+      return done err if err
       #add to ignore
-      #done() 
-    #on error ->
-      #done err
+      done()
 
 exports.Service = Service
