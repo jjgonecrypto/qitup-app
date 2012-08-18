@@ -6,30 +6,30 @@ class Service
     @authenticated = false
     @criteria = {}
 
-  constructor: (@options = {}) ->
+  constructor: (@service = {}) ->
     @reset()
-    @criteria = options.criteria if options.criteria
+    @criteria = service.criteria if service.criteria
 
   authenticate: (done, onDeauth) ->
     @onDeauth = onDeauth
-    #call implementation of auth
-    #on err ->
-      #done err
-    #on success ->
-      #authenticated = true
-      #done()
+    @doAuthenticate (result, err) =>
+      return done null, err if err
+      @authenticated = true
+      done result
 
   logout: (done) -> 
     #perhaps this shouldn't have a done() callback but rather triggers onDeauth
-
+    @doLogout (result, err) =>
+      return done null, err if err
+      @authenticated = false
+      done result
 
   setCriteria: (criteria) ->
     @criteria = criteria
 
   search: (next) ->
-    #call search implementation....
-
-    #(uses @criteria)
+    @service.search
+    
 
   message: (post, text, done) ->
     #call implementation to msg 
