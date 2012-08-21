@@ -8,7 +8,7 @@ class Service
 
   constructor: (@service = {}) ->
     @reset()
-    @criteria = service.criteria if service.criteria
+    @criteria = @service.criteria if @service.criteria
 
   authenticate: (done, onDeauth) ->
     @onDeauth = onDeauth
@@ -27,10 +27,12 @@ class Service
   setCriteria: (criteria) ->
     @criteria = criteria
 
-  search: (next) ->
-    @service.search
-    #cache result
+  getCriteria: () -> @criteria
 
+  search: (next) ->
+    @service.search () -> 
+      #cache result
+      next()
     
   message: (post, text, done) ->
     @doMessage post, text, (err) ->
