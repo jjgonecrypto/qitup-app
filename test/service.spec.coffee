@@ -47,14 +47,62 @@ describe "Service", ->
         error.should.eql err
         done()
 
-  it "must have authenticated status once authenticated"
+  it "must have authenticated status once authenticated", (done) ->
+    service.doAuthenticate = (callback) -> callback {}
 
+    service.authenticate () ->
+      service.authenticated.should.eql true
+      done()
 
-  it "must set onDeauth callback via authentication"
+  it "must set onDeauth callback via authentication", (done) ->
+    service.doAuthenticate = (callback) -> callback {}
+    onDeauth = () ->
 
-  it "must call doLogout callback"
+    service.authenticate () ->
+      service.onDeauth.should.eql onDeauth
+      done()
+    , onDeauth
 
-  it "must not have authenticated status once logout"
+  it "must call doLogout callback only when authenticated", (done) ->
+    service.authenticated = true
+    (() -> service.logout () ->).should.throw()
+    
+    spy = sinon.spy()
+    service.doLogout = spy
+    service.authenticated = false
+    service.logout(() ->)
+    sinon.assert.notCalled spy
+
+    service.authenticated = true
+    service.logout(() ->)
+    sinon.assert.calledOnce spy
+    done()
+  
+  it "must callback after logout implementation is done", (done) ->
+    service.authenticated = true
+    err = null
+    service.doLogout = (callback) -> callback err
+
+    service.logout (error) ->
+      should.not.exist error
+      service.authenticated = true
+      err = "i am error"
+      service.logout (error) ->
+        error.should.eql err
+        done()
+
+  it "must not have authenticated status once logout", (done) ->
+    service.authenticated = true
+    err = null
+    service.doLogout = (callback) -> callback err
+
+    service.logout (error) ->
+      service.authenticated.should.eql false
+      service.authenticated = true
+      err = "i am error"
+      service.logout (error) ->
+        service.authenticated.should.eql true
+        done()
 
   it "must call search callback"
 

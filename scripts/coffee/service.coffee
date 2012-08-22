@@ -19,10 +19,11 @@ class Service
 
   logout: (done) -> 
     #perhaps this shouldn't have a done() callback but rather triggers onDeauth
-    @doLogout (result, err) =>
-      return done null, err if err
+    return done() if !@authenticated
+    @doLogout (err) =>
+      return done err if err
       @authenticated = false
-      done result
+      done()
 
   setCriteria: (criteria) ->
     @criteria = criteria
