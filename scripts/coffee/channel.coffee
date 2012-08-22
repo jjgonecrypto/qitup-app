@@ -30,7 +30,8 @@ class Channel
 
   search: () ->
     #does all the heavy lifting
-
+    for service in @services
+      service.search (request, service) ->
 
   stop: () ->
     stopPolling

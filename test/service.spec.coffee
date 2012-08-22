@@ -12,7 +12,7 @@ describe "Service", ->
   afterEach (done) ->
     done()
 
-  it "must pass through criteria to search", (done) ->
+  it "must set search criteria", (done) ->
     criteria = 
       keywords: ['first']
       users: ['someone', 'else']
@@ -104,5 +104,14 @@ describe "Service", ->
         service.authenticated.should.eql true
         done()
 
-  it "must call search callback"
+  it "must call search callback", (done) ->
+    (() -> service.search()).should.throw()
+
+    spy = sinon.spy()
+    service.doSearch = spy
+
+    service.search()
+    sinon.assert.calledOnce(spy)
+    done()
+
 

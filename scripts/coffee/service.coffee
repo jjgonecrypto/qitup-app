@@ -31,9 +31,12 @@ class Service
   getCriteria: () -> @criteria
 
   search: (next) ->
-    @service.search () -> 
-      #cache result
-      next()
+    @doSearch (result) -> 
+      #return if cached ...
+      #return if past ...
+      #return if ignore ...
+
+      next result, @
     
   message: (post, text, done) ->
     @doMessage post, text, (err) ->
