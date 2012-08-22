@@ -41,9 +41,10 @@ class Service
       next result, @
     
   message: (post, text, done) ->
-    @doMessage post, text, (err) ->
+    return done "cannot send message, not authenticated" if !@authenticated
+    @doMessage post, text, (result, err) ->
       return done err if err
-      #add to ignore
+      ignore result
       done()
 
   cached = (result) -> 
@@ -53,6 +54,8 @@ class Service
 
   past = (result) ->
     result.created instanceof Date and @criteria.future and result.created < @criteria.timestamp
+
+  ignore = (result) -> @ignore[result.id] = result
 
   ignored = (result) -> @ignore[result.id]?
 

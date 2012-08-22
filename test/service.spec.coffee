@@ -153,6 +153,10 @@ describe "Service", ->
 
     done()
 
+  it "must call message implementation", (done) ->
+    service.authenticated = true
+    assertCallsImplementation service, "message", "doMessage", () -> done()
+
   it "must ignore entries on the ignore list"
     #do a message, setup an ignore
     #test ignore via search
