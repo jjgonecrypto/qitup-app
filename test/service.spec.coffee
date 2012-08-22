@@ -152,3 +152,10 @@ describe "Service", ->
     sinon.assert.calledOnce spy2
 
     done()
+
+  it "must ignore entries on the ignore list"
+    #do a message, setup an ignore
+    #test ignore via search
+
+
+
