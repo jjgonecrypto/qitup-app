@@ -12,6 +12,16 @@ describe "Service", ->
   afterEach (done) ->
     done()
 
+  assertCallsImplementation = (service, base, implementation, done) ->
+    (() -> service[base] () ->).should.throw()
+
+    spy = sinon.spy()
+    service[implementation] = spy
+
+    service[base] () ->
+    sinon.assert.calledOnce(spy)
+    done()
+
   it "must set search criteria", (done) ->
     criteria = 
       keywords: ['first']
@@ -23,14 +33,7 @@ describe "Service", ->
     done()
 
   it "must call the service's auth implementation", (done) ->
-    (() -> service.authenticate()).should.throw()
-
-    spy = sinon.spy()
-    service.doAuthenticate = spy
-
-    service.authenticate()
-    sinon.assert.calledOnce(spy)
-    done()
+    assertCallsImplementation service, "authenticate", "doAuthenticate", () -> done()
 
   it "must callback after auth implementation is done", (done) ->
     res = {}
@@ -63,19 +66,16 @@ describe "Service", ->
       done()
     , onDeauth
 
-  it "must call doLogout callback only when authenticated", (done) ->
+  it "must call doLogout implementation", (done) ->
     service.authenticated = true
-    (() -> service.logout () ->).should.throw()
-    
+    assertCallsImplementation service, "logout", "doLogout", () -> done()
+
+  it "must call doLogout callback only when authenticated", (done) ->
     spy = sinon.spy()
     service.doLogout = spy
     service.authenticated = false
     service.logout(() ->)
     sinon.assert.notCalled spy
-
-    service.authenticated = true
-    service.logout(() ->)
-    sinon.assert.calledOnce spy
     done()
   
   it "must callback after logout implementation is done", (done) ->
@@ -105,13 +105,5 @@ describe "Service", ->
         done()
 
   it "must call search callback", (done) ->
-    (() -> service.search()).should.throw()
-
-    spy = sinon.spy()
-    service.doSearch = spy
-
-    service.search()
-    sinon.assert.calledOnce(spy)
-    done()
-
+    assertCallsImplementation service, "search", "doSearch", () -> done()
 
