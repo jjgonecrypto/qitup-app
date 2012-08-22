@@ -1,7 +1,7 @@
 class Service
   reset: () ->
     @cache = {}
-    @ignore = []
+    @ignore = {}
     @onDeauth = undefined
     @authenticated = false
     @criteria = {}
@@ -36,7 +36,7 @@ class Service
     @doSearch (result) => 
       return console.log "cached - ignoring" if cached.call @, result
       return console.log "past - ignoring" if past.call @, result
-      #return if ignore ...
+      return console.log "on ignore list" if ignored.call @, result
 
       next result, @
     
@@ -54,5 +54,6 @@ class Service
   past = (result) ->
     result.created instanceof Date and @criteria.future and result.created < @criteria.timestamp
 
+  ignored = (result) -> @ignore[result.id]?
 
 exports.Service = Service
