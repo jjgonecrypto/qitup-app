@@ -105,5 +105,50 @@ describe "Service", ->
         done()
 
   it "must call search callback", (done) ->
+    (() -> service.search () ->).should.throw()
+    service.setCriteria {}
     assertCallsImplementation service, "search", "doSearch", () -> done()
 
+  it "must pass through responses back from implementation", (done) ->
+    res = 
+      id: 123
+    service.doSearch = (callback) -> callback res
+    service.setCriteria {}    
+    service.search (result, ser) ->
+      result.should.eql res
+      ser.should.eql service
+      done()
+
+  it "must pass cache responses and not repeat them", (done) ->
+    res = 
+      id: 123
+    service.doSearch = (callback) -> callback res
+    service.setCriteria {}
+    spy = sinon.spy()    
+    service.search spy
+    sinon.assert.calledOnce spy
+
+    spy2 = sinon.spy()
+    service.search spy2
+    sinon.assert.notCalled spy2    
+    done()
+
+  it "must ignore past entries when instructed", (done) ->
+    res = 
+      id: 1
+      created: new Date(new Date().getTime() - 1000)
+    service.doSearch = (callback) -> callback res
+    service.setCriteria 
+      future: true
+    spy = sinon.spy()    
+    service.search spy
+    sinon.assert.notCalled spy
+
+    res = 
+      id: 2
+      created: new Date(new Date().getTime() + 1000)
+    spy2 = sinon.spy()
+    service.search spy2
+    sinon.assert.calledOnce spy2
+
+    done()

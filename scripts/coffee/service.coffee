@@ -27,13 +27,15 @@ class Service
 
   setCriteria: (criteria) ->
     @criteria = criteria
+    @criteria.timestamp = new Date() 
 
   getCriteria: () -> @criteria
 
   search: (next) ->
-    @doSearch (result) -> 
-      #return if cached ...
-      #return if past ...
+    throw "no criteria set" if !@criteria
+    @doSearch (result) => 
+      return console.log "cached - ignoring" if cached.call @, result
+      return console.log "past - ignoring" if past.call @, result
       #return if ignore ...
 
       next result, @
@@ -43,5 +45,14 @@ class Service
       return done err if err
       #add to ignore
       done()
+
+  cached = (result) -> 
+    status = @cache[result.id]?
+    @cache[result.id]?= result
+    status
+
+  past = (result) ->
+    result.created instanceof Date and @criteria.future and result.created < @criteria.timestamp
+
 
 exports.Service = Service
