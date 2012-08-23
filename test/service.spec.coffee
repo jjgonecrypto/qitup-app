@@ -157,6 +157,24 @@ describe "Service", ->
     service.authenticated = true
     assertCallsImplementation service, "message", "doMessage", () -> done()
 
+  it "must pass through messages from implementation", (done) ->
+    p = {}
+    t = ""
+    res = {id:123}
+    err = undefined
+    service.authenticated = true
+    service.doMessage = (post, text, callback) ->
+      post.should.eql p
+      text.should.eql t
+      callback res, err
+
+    service.message p, t, (error) ->
+      should.not.exist error
+      err = "some error"
+      service.message p, t, (error) ->
+        error.should.eql err  
+        done()
+
   it "must ignore entries on the ignore list"
     #do a message, setup an ignore
     #test ignore via search

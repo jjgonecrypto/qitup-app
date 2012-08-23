@@ -42,9 +42,9 @@ class Service
     
   message: (post, text, done) ->
     return done "cannot send message, not authenticated" if !@authenticated
-    @doMessage post, text, (result, err) ->
+    @doMessage post, text, (result, err) =>
       return done err if err
-      ignore result
+      ignore.call @, result
       done()
 
   cached = (result) -> 
