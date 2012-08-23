@@ -175,9 +175,17 @@ describe "Service", ->
         error.should.eql err  
         done()
 
-  it "must ignore entries on the ignore list"
-    #do a message, setup an ignore
-    #test ignore via search
-
-
+  it "must ignore search results with same id as sent message", (done) ->
+    res = 
+      id: 1
+      created: new Date(new Date().getTime() - 1000)
+    service.authenticated = true
+    service.doMessage = (post, text, callback) -> callback res
+    service.message {}, "", (error) ->
+    service.doSearch = (callback) -> callback res
+    service.setCriteria {}
+    spy = sinon.spy()    
+    service.search spy
+    sinon.assert.notCalled spy
+    done()
 
