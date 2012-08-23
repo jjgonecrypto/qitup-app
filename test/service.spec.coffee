@@ -10,6 +10,7 @@ describe "Service", ->
     done()
 
   afterEach (done) ->
+    service = undefined
     done()
 
   assertCallsImplementation = (service, base, implementation, done) ->
