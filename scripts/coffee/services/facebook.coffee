@@ -29,5 +29,16 @@ class Facebook extends Service
         console.log 'Facebook authentication failed', error
         done null, error
  
+  doLogout: (done) ->
+    #todo
+    done()
+
+  doMessage: (post, text, done) ->
+    #todo
+    done()
+
+  doSearch: (next) ->
+    #todo
+    next()
 
 exports.Facebook = Facebook 

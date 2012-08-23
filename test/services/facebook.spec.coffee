@@ -1,10 +1,14 @@
 {should, sinon, auth} = require("./base")()
 
-facebook = require "../scripts/coffee/facebook"
+Facebook = require "../scripts/coffee/services/facebook"
 
 describe "Facebook", ->
 
+  facebook = undefined
+
   beforeEach (done) ->
+    facebook = new Facebook()
+    
     global.XMLHttpRequest.prototype =
       abort: () ->
       readyState: 4
@@ -14,10 +18,11 @@ describe "Facebook", ->
       responseText: null
       send: () -> @onreadystatechange()
       setRequestHeader: () ->
+        
     done()
 
   afterEach (done) ->
-    facebook.reset()
+    facebook = undefined
     done()
 
   it "must authenticate"
