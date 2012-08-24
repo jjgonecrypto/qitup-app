@@ -1,9 +1,17 @@
 keys = 
   facebook: 
     appID: 12345
+ajaxDone = undefined
+ajaxFail = undefined
+swah =
+  swah: 
+    ajax: (opts) -> result = 
+      done: (callback) -> ajaxDone() if ajaxDone instanceof Function
+      fail: (callback) -> ajaxFail() if ajaxFail instanceof Function
 
 {should, sinon, auth} = require("../base")
   "/scripts/js/service-keys": keys
+  "/scripts/js/swah": swah
 
 Facebook = require("../../scripts/coffee/services/facebook").Facebook
 
@@ -57,6 +65,9 @@ describe "Facebook", ->
       err.should.eql error
       facebook.authenticated.should.eql false
       done()  
+
+  it "must process logout when instructed", (done) ->
+    done()
 
   it "must try reauthenticate on search receiving 400 expiry"
 
