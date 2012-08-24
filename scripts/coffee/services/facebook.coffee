@@ -9,18 +9,20 @@ Service = sp.require("/scripts/js/service").Service
 
 class Facebook extends Service
 
-  url:
+  url =
     search: "https://graph.facebook.com/search"
     picture: (id) -> "https://graph.facebook.com/#{id}/picture"
     feed: (username) -> "https://graph.facebook.com/#{username}/feed"
     comment: (id) -> "https://graph.facebook.com/#{id}/comments"
     logout: "https://www.facebook.com/logout.php?next=http://qitup.fm"
+  
+  permissions = ['manage_pages', 'publish_stream'] 
 
-  ajax: {}
-  permissions: ['manage_pages', 'publish_stream'] 
-
+  constructor: (@ajax = {}) ->
+    super()
+  
   doAuthenticate: (done) ->
-    auth.authenticateWithFacebook keys.facebook.appID, @permissions, 
+    auth.authenticateWithFacebook keys.facebook.appID, permissions, 
       onSuccess: (accessToken, ttl) =>
         console.log "Facebook auth successful!", accessToken, ttl
         @accessToken = accessToken
@@ -31,12 +33,10 @@ class Facebook extends Service
         done null, error
  
   doLogout: (done) ->
-    ajax.logout.abort() if ajax.logout
-
-    ajax.logout = ç.ajax
+    @ajax.logout.abort() if @ajax.logout   
+    @ajax.logout = ç.ajax
       uri: "#{url.logout}&access_token=#{@accessToken}" 
     .done (result) ->
-      api.status = false
       done() if done
     .fail (err, status) ->
       done err if done

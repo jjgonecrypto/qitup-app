@@ -1,13 +1,20 @@
 keys = 
   facebook: 
     appID: 12345
-ajaxDone = undefined
-ajaxFail = undefined
+ajaxResult = undefined
+ajaxError = undefined
+abort = undefined
 swah =
   swah: 
     ajax: (opts) -> result = 
-      done: (callback) -> ajaxDone() if ajaxDone instanceof Function
-      fail: (callback) -> ajaxFail() if ajaxFail instanceof Function
+      done: (callback) -> 
+        callback ajaxResult if !ajaxError
+        @
+      fail: (callback) -> 
+        callback ajaxError if ajaxError
+        @
+      abort: () -> abort() if abort instanceof Function
+      
 
 {should, sinon, auth} = require("../base")
   "/scripts/js/service-keys": keys
@@ -22,6 +29,10 @@ describe "Facebook", ->
   beforeEach (done) ->
     facebook = new Facebook()
     
+    ajaxResult = undefined
+    ajaxError = undefined
+    callAbort = undefined
+
     global.XMLHttpRequest.prototype =
       abort: () ->
       readyState: 4
@@ -42,7 +53,7 @@ describe "Facebook", ->
     spy = sinon.spy() 
     auth.authenticateWithFacebook = spy
     facebook.authenticate()
-    sinon.assert.calledWith spy, keys.facebook.appID, facebook.permissions
+    sinon.assert.calledWith spy, keys.facebook.appID
     done()
 
   it "must handle spotify auth success return", (done) ->
@@ -67,7 +78,23 @@ describe "Facebook", ->
       done()  
 
   it "must process logout when instructed", (done) ->
-    done()
+    facebook.authenticated = true
+    ajaxResult = {}
+    facebook.logout (err) ->
+      facebook.authenticated.should.eql false
+      facebook.authenticated = true
+    abort = sinon.spy()
+    facebook.logout (err) ->
+      sinon.assert.calledOnce abort
+      done()
+
+  it "must not logout if error encountered", (done) ->
+    facebook.authenticated = true
+    ajaxError = "i am error"
+    facebook.logout (err) ->
+      err.should.eql ajaxError
+      facebook.authenticated.should.eql true
+      done()
 
   it "must try reauthenticate on search receiving 400 expiry"
 
