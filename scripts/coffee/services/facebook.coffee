@@ -18,8 +18,7 @@ class Facebook extends Service
   
   permissions = ['manage_pages', 'publish_stream'] 
 
-  constructor: (@ajax = {}) ->
-    super()
+  constructor: (@ajax = {}) -> super()
   
   doAuthenticate: (done) ->
     auth.authenticateWithFacebook keys.facebook.appID, permissions, 

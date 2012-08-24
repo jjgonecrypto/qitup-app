@@ -13,7 +13,9 @@ swah =
       fail: (callback) -> 
         callback ajaxError if ajaxError
         @
-      abort: () -> abort() if abort instanceof Function
+      abort: () -> 
+        console.log "aborting!"
+        abort() if abort instanceof Function
       
 
 {should, sinon, auth} = require("../base")
@@ -28,7 +30,7 @@ describe "Facebook", ->
 
   beforeEach (done) ->
     facebook = new Facebook()
-    
+
     ajaxResult = undefined
     ajaxError = undefined
     callAbort = undefined
@@ -87,7 +89,7 @@ describe "Facebook", ->
     facebook.logout (err) ->
       sinon.assert.calledOnce abort
       done()
-
+  
   it "must not logout if error encountered", (done) ->
     facebook.authenticated = true
     ajaxError = "i am error"
@@ -95,7 +97,7 @@ describe "Facebook", ->
       err.should.eql ajaxError
       facebook.authenticated.should.eql true
       done()
-
+  
   it "must try reauthenticate on search receiving 400 expiry"
 
   it "must call authenticate error callback on all other non HTTP 200 search responses"
