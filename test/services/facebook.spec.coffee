@@ -45,6 +45,7 @@ describe "Facebook", ->
     facebook.authenticate (result, err) ->
       result.should.eql accessToken
       facebook.authenticated.should.eql true
+      facebook.accessToken.should.eql accessToken
       done()  
 
   it "must handle spotify auth error return", (done) ->

@@ -21,12 +21,12 @@ class Facebook extends Service
 
   doAuthenticate: (done) ->
     auth.authenticateWithFacebook keys.facebook.appID, @permissions, 
-      onSuccess: (accessToken, ttl) ->
+      onSuccess: (accessToken, ttl) =>
         console.log "Facebook auth successful!", accessToken, ttl
         @accessToken = accessToken
         done accessToken
 
-      onFailure: (error) -> 
+      onFailure: (error) => 
         console.log 'Facebook authentication failed', error
         done null, error
  
@@ -34,7 +34,7 @@ class Facebook extends Service
     ajax.logout.abort() if ajax.logout
 
     ajax.logout = ç.ajax
-      uri: "#{url.logout}&access_token=#{api.accessToken}" 
+      uri: "#{url.logout}&access_token=#{@accessToken}" 
     .done (result) ->
       api.status = false
       done() if done
