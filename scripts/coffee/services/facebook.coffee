@@ -3,8 +3,9 @@ sp = getSpotifyApi 1
 auth = sp.require "sp://import/scripts/api/auth"
 keys = sp.require "/scripts/js/service-keys"
 helper = sp.require "/scripts/js/helper"
+ç = sp.require("/scripts/js/swah").swah
 
-Service = sp.require "/scripts/js/service"
+Service = sp.require("/scripts/js/service").Service
 
 class Facebook extends Service
 
@@ -19,7 +20,7 @@ class Facebook extends Service
   permissions: ['manage_pages', 'publish_stream'] 
 
   doAuthenticate: (done) ->
-    auth.authenticateWithFacebook keys.facebook.appID, permissions, 
+    auth.authenticateWithFacebook keys.facebook.appID, @permissions, 
       onSuccess: (accessToken, ttl) ->
         console.log "Facebook auth successful!", accessToken, ttl
         @accessToken = accessToken
@@ -30,8 +31,15 @@ class Facebook extends Service
         done null, error
  
   doLogout: (done) ->
-    #todo
-    done()
+    ajax.logout.abort() if ajax.logout
+
+    ajax.logout = ç.ajax
+      uri: "#{url.logout}&access_token=#{api.accessToken}" 
+    .done (result) ->
+      api.status = false
+      done() if done
+    .fail (err, status) ->
+      done err if done
 
   doMessage: (post, text, done) ->
     #todo

@@ -1,6 +1,11 @@
-{should, sinon, auth} = require("./base")()
+keys = 
+  facebook: 
+    appID: 12345
 
-Facebook = require "../scripts/coffee/services/facebook"
+{should, sinon, auth} = require("../base")
+  "/scripts/js/service-keys": keys
+
+Facebook = require("../../scripts/coffee/services/facebook").Facebook
 
 describe "Facebook", ->
 
@@ -18,49 +23,43 @@ describe "Facebook", ->
       responseText: null
       send: () -> @onreadystatechange()
       setRequestHeader: () ->
-        
+
     done()
 
   afterEach (done) ->
     facebook = undefined
     done()
 
-  it "must authenticate"
+  it "must call spotify authenticateWithFacebook method", (done) -> 
+    spy = sinon.spy() 
+    auth.authenticateWithFacebook = spy
+    facebook.authenticate()
+    sinon.assert.calledWith spy, keys.facebook.appID, facebook.permissions
+    done()
 
-  it "must try reauthenticate on 400 expiry"
+  it "must handle spotify auth success return", (done) ->
+    accessToken = 333
+    ttl = 5500
+    auth.authenticateWithFacebook = (appID, perm, callbacks) ->
+      callbacks.onSuccess accessToken, ttl
+    facebook.authenticate (result, err) ->
+      result.should.eql accessToken
+      facebook.authenticated.should.eql true
+      done()  
+
+  it "must handle spotify auth error return", (done) ->
+    error = "i am error"
+    auth.authenticateWithFacebook = (appID, perm, callbacks) ->
+      callbacks.onFailure error
+    facebook.authenticate (result, err) ->
+      should.not.exist result
+      err.should.eql error
+      facebook.authenticated.should.eql false
+      done()  
+
+  it "must try reauthenticate on search receiving 400 expiry"
 
   it "must call authenticate error callback on all other non HTTP 200 search responses"
 
   # it "must be authed to do requests???"
 
-
-###
-  setResponse = (results) ->
-    global.XMLHttpRequest.prototype.responseText = JSON.stringify 
-      results: results
-
-   it "should return full tweet details", (done) ->
-    setResponse [ 
-      text: "play:where-the-wild #twimote"
-      from_user: "user1", 
-      profile_image_url: "image"
-      from_user_name: "name!"
-    ]
-
-    twitter.search {query: "twimote"}, (request) -> 
-      request.username.should.eql "user1"
-      request.avatar_uri.should.eql "image"
-      request.fullname.should.eql "name!"
-      request.profile_uri.should.eql "http://twitter.com/#{request.username}"
-      done()
-
-  requestStub = (text, stripped) ->
-    base = 
-      username: undefined
-      fullname: undefined
-      avatar_uri: undefined
-      profile_uri: "http://twitter.com/undefined"
-      id: undefined
-      text: text
-      stripped: if stripped then stripped else text
-###
