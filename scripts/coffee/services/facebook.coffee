@@ -14,7 +14,7 @@ class Facebook extends Service
     picture: (id) -> "https://graph.facebook.com/#{id}/picture"
     feed: (username) -> "https://graph.facebook.com/#{encodeURI(username)}/feed"
     comment: (id) -> "https://graph.facebook.com/#{id}/comments"
-    logout: "https://www.facebook.com/logout.php?next=http://qitup.fm"
+    logout: (accessToken) -> "https://www.facebook.com/logout.php?next=#{encodeURI('http://qitup.fm')}&access_token=#{accessToken}"
   
   permissions = ['manage_pages', 'publish_stream'] 
 
@@ -34,7 +34,7 @@ class Facebook extends Service
   doLogout: (done) ->
     @ajax.logout.abort() if @ajax.logout   
     @ajax.logout = ç.ajax
-      uri: "#{url.logout}&access_token=#{@accessToken}" 
+      uri: url.logout @accessToken 
     .done (result) ->
       done() if done
     .fail (err, status) ->
@@ -45,43 +45,30 @@ class Facebook extends Service
     done()
 
   doGenerateEndpoints: () ->
-    @addEndpoint 
+    endpoints = []
+    endpoints.push  
       query: @criteria.keywords.join(",")
-      uri: "#{url.search(@criteria.keywords)}"
+      uri: "#{url.search @criteria.keywords}"
     for username in @criteria.usernames
-      @addEndpoint 
+      endpoints.push 
         query: "@#{username}"
         uri: url.feed encodeURI(username) 
         authenticate: true
+    @endpoints = endpoints
 
-  searchUris = () ->
+  extras = () ->
+    [
+      key: "access_token", value: @accessToken, authenticated: true
+    ,  
+      key: "limit", value: 100
+    ,  
+      key: "since", value: @lastId endpoint.uri ? null 
+    ]  
 
-    #must generate a URI for the query 
-    #uri = url.search + "?" + @criteria.map((item) -> encodeURI(item)).join("+OR+")
-    #check since of last
-    #return [since uri]
-
-  feedUris = () ->
-    #uris = []
-    #for username in @criteria.usernames
-    #  uri = url.feed(username)
-    #  uris.push
-    #    uri: url.feed(username)
-    #    full: "?access_token=#{api.accessToken}&limit=100"
-
-    #uri = "#{url.feed(query)}?access_token=#{api.accessToken}&limit=100"
-    #uri += "&since=#{postsByQuery[query].last_id}" if postsByQuery[query]?.last_id
-    #uri
-
-  appendSettings = (endpoint) ->
-    properties = [
-       access_token: @accessToken, authenticated: true
-    ,  limit: 100
-    ,  since: @lastId endpoint.uri ? null 
-    ]
+  appendTo = (extras, endpoint) ->
     separator = if endpoint.uri.indexOf "?" then "&" else "?"
     uri = "#{endpoint.uri}#{separator}" 
-    uri += "#{key}=#{value}&" for entry in properties when not endpoint.authenticate or entry.authenticated is @authenticated  
+    uri += "#{entry.key}=#{entry.value}&" for entry in extras when endpoint.value and (not endpoint.authenticate or entry.authenticated is @authenticated  )
     uri
 
   doSearch: (next) ->
@@ -92,10 +79,10 @@ class Facebook extends Service
         console.log "cannot run facebook search for #{endpoint.query}: not authenticated" 
         continue
 
-      uri = appendSettings endpoint
+      uri = appendTo extras().call(@), endpoint
       #ajax
         #.done (result, request)
-          #since (request.uri)
+          #@lastId (request.uri, request.id)
           #for each result
             #next ...
 
