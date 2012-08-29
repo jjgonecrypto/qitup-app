@@ -44,8 +44,79 @@ class Facebook extends Service
     #todo
     done()
 
+
+  searchUris = () ->
+
+    #must generate a URI for the query 
+    #uri = url.search + "?" + @criteria.map((item) -> encodeURI(item)).join("+OR+")
+    #check since of last
+    #return [since uri]
+
+  feedUris = () ->
+    #uris = []
+    #for username in @criteria.usernames
+    #  uri = url.feed(username)
+    #  uris.push
+    #    uri: url.feed(username)
+    #    full: "?access_token=#{api.accessToken}&limit=100"
+
+    #uri = "#{url.feed(query)}?access_token=#{api.accessToken}&limit=100"
+    #uri += "&since=#{postsByQuery[query].last_id}" if postsByQuery[query]?.last_id
+    #uri
+
   doSearch: (next) ->
-    #todo
-    next()
+    @ajax.search.abort() if @ajax.search
+
+    
+    #uris = searchUris().concat(feedUris())
+
+    
+    #for uri in uris
+      #ajax
+        #.done (result, request)
+          #since (request.uri)
+          #for each result
+            #next ...
+
+
+
+    ###
+    @ajax.search = ç.ajax
+      uri: searchUri(request.query)
+    .done (result) ->
+      return unless result.data.length > 0
+      setLastId request.query, helper.parseUri(result.paging.previous, "since")
+      result.data.reverse().forEach (entry) ->
+        return unless entry.message and entry.id
+        console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
+        return console.log "cached - ignoring" if cached request.query, entry
+        return console.log "past - ignoring" if request.from_date and new Date(entry.created_time) < request.from_date
+        return console.log "self-message - ignoring" unless ignorePosts.indexOf(entry.id) is -1
+
+        next 
+          username: entry.from.name
+          fullname: entry.from.name
+          avatar_uri: url.picture(entry.from.id)
+          profile_uri: "http://facebook.com/#{entry.from.id}"
+          stripped: strip entry.message, request.query
+          text: entry.message
+          id: entry.id
+        , service
+
+    .fail (err, status) ->
+      console.log "error!", err, status
+      if status is 400 and err.error.code is 190 and err.error.error_subcode is 463
+        console.log "facebook auth expired. automatically reauthing.", err.error
+        api.status = false
+        authenticate (response, err) ->
+          return console.log err if err
+          return search request, next
+      else if status is 400 and err.error.code is 190
+        api.status = false
+        onExpired(err, status) if onExpired
+        return console.log "facebook request returned a 400 (fbook code 190)", err
+      else
+        return console.log "facebook request returned a #{status}", err  
+      ###
 
 exports.Facebook = Facebook 
