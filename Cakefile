@@ -8,7 +8,7 @@ runCommand = (name, args...) ->
 	proc.on          'exit', (status) -> process.exit(1) if status isnt 0
 
 task 'watch', 'Watch source files and build JS & CSS', (options) ->
-  runCommand 'coffee', '-wc', '-o', 'scripts/js/', 'scripts/coffee/'
+  runCommand 'coffee', '-wc', '--lint', '-o', 'scripts/js/', 'scripts/coffee/'
   runCommand 'stylus', '-w', 'styles/stylus', '-o', 'styles/css'
 
 task 'test', 'Run the testing suite', (options) ->
