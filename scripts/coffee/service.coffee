@@ -28,6 +28,7 @@ class Service
   setCriteria: (criteria) ->
     @criteria = criteria
     @criteria.timestamp = new Date() 
+    #@doGenerateEndpoints()
 
   getCriteria: () -> @criteria
 

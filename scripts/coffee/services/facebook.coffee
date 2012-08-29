@@ -10,9 +10,9 @@ Service = sp.require("/scripts/js/service").Service
 class Facebook extends Service
 
   url =
-    search: "https://graph.facebook.com/search"
+    search: (keywords) -> "https://graph.facebook.com/search?q=#{keywords.map((item) -> encodeURI(item)).join("+OR+")}"
     picture: (id) -> "https://graph.facebook.com/#{id}/picture"
-    feed: (username) -> "https://graph.facebook.com/#{username}/feed"
+    feed: (username) -> "https://graph.facebook.com/#{encodeURI(username)}/feed"
     comment: (id) -> "https://graph.facebook.com/#{id}/comments"
     logout: "https://www.facebook.com/logout.php?next=http://qitup.fm"
   
@@ -44,6 +44,15 @@ class Facebook extends Service
     #todo
     done()
 
+  doGenerateEndpoints: () ->
+    @addEndpoint 
+      query: @criteria.keywords.join(",")
+      uri: "#{url.search(@criteria.keywords)}"
+    for username in @criteria.usernames
+      @addEndpoint 
+        query: "@#{username}"
+        uri: url.feed encodeURI(username) 
+        authenticate: true
 
   searchUris = () ->
 
@@ -64,14 +73,26 @@ class Facebook extends Service
     #uri += "&since=#{postsByQuery[query].last_id}" if postsByQuery[query]?.last_id
     #uri
 
+  appendSettings = (endpoint) ->
+    properties = [
+       access_token: @accessToken, authenticated: true
+    ,  limit: 100
+    ,  since: @lastId endpoint.uri ? null 
+    ]
+    separator = if endpoint.uri.indexOf "?" then "&" else "?"
+    uri = "#{endpoint.uri}#{separator}" 
+    uri += "#{key}=#{value}&" for entry in properties when not endpoint.authenticate or entry.authenticated is @authenticated  
+    uri
+
   doSearch: (next) ->
     @ajax.search.abort() if @ajax.search
+  
+    for endpoint in @endpoints
+      if endpoint.authenticate and not @authenticated
+        console.log "cannot run facebook search for #{endpoint.query}: not authenticated" 
+        continue
 
-    
-    #uris = searchUris().concat(feedUris())
-
-    
-    #for uri in uris
+      uri = appendSettings endpoint
       #ajax
         #.done (result, request)
           #since (request.uri)
