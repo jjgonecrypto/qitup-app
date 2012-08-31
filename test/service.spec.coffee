@@ -7,6 +7,7 @@ describe "Service", ->
 
   beforeEach (done) ->
     service = new Service()
+    service.doGenerateEndpointsFrom = () ->
     done()
 
   afterEach (done) ->
@@ -29,8 +30,11 @@ describe "Service", ->
       users: ['someone', 'else']
       future: true
     
+    spy = sinon.spy()
+    service.doGenerateEndpointsFrom = spy
     service.setCriteria criteria 
     service.getCriteria().should.eql criteria
+    sinon.assert.calledOnce spy
     done()
 
   it "must call the service's auth implementation", (done) ->

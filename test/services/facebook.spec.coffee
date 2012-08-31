@@ -99,8 +99,42 @@ describe "Facebook", ->
       done()
   
   it "must try reauthenticate on search receiving 400 expiry"
+    #todo
 
   it "must call authenticate error callback on all other non HTTP 200 search responses"
+    #todo
 
+  it "must generate endpoints for criteria", (done) ->
+    first = "keyword1"
+    second = "keyword2"
+    user1 = "user1"
+    user2 = "user2"
+
+    facebook.setCriteria
+      keywords: [first, second]
+      usernames: [user1, user2]
+
+    facebook.authenticated = true
+    oldAjax = swah.swah.ajax
+    spy = sinon.spy swah.swah.ajax
+    swah.swah.ajax = spy
+    ajaxResult = 
+      paging:
+        previous: "123"
+      data: []  
+    
+    facebook.search()
+    sinon.assert.calledThrice spy
+    sinon.assert.calledWith spy, 
+      uri: "https://graph.facebook.com/search?q=keyword1+OR+keyword2&"
+    sinon.assert.calledWith spy, 
+      uri: "https://graph.facebook.com/user1/feed?"
+    sinon.assert.calledWith spy, 
+      uri: "https://graph.facebook.com/user2/feed?"
+    
+    swah.swah.ajax = oldAjax
+    done()
+
+  it "must abort old requests per endpoint when new comes through"
   # it "must be authed to do requests???"
 

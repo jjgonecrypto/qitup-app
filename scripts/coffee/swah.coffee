@@ -74,7 +74,7 @@ swah.ajax = (options) ->
     unless @status is 200
       fail response, @status if fail
       return 
-    done response, @status if done
+    done response, @status, {uri: uri, type: type} if done
     always() if always
   xhr.send(if options?.data then options.data else {})
   promise

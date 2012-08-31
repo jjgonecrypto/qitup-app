@@ -44,19 +44,21 @@ class Facebook extends Service
     #todo
     done()
 
-  doGenerateEndpoints: () ->
+  doGenerateEndpointsFrom: (criteria) ->
     endpoints = []
     endpoints.push  
-      query: @criteria.keywords.join(",")
-      uri: "#{url.search @criteria.keywords}"
-    for username in @criteria.usernames
+      query: criteria.keywords.join(",")
+      strip: criteria.keywords
+      uri: "#{url.search criteria.keywords}"
+    for username in criteria.usernames
       endpoints.push 
         query: "@#{username}"
+        strip: username
         uri: url.feed encodeURI(username) 
         authenticate: true
     @endpoints = endpoints
 
-  extras = () ->
+  extras = (endpoint) ->
     [
       key: "access_token", value: @accessToken, authenticated: true
     ,  
@@ -66,65 +68,49 @@ class Facebook extends Service
     ]  
 
   appendTo = (extras, endpoint) ->
-    separator = if endpoint.uri.indexOf "?" then "&" else "?"
+    separator = if endpoint.uri.indexOf("?") > 0 then "&" else "?"
     uri = "#{endpoint.uri}#{separator}" 
     uri += "#{entry.key}=#{entry.value}&" for entry in extras when endpoint.value and (not endpoint.authenticate or entry.authenticated is @authenticated  )
     uri
 
-  doSearch: (next) ->
-    @ajax.search.abort() if @ajax.search
+  strip = (text, toStrip) ->
+    toStrip = [toStrip] if toStrip instanceof String
+    for query in toStrip
+      if query.match(/[^a-zA-Z0-9-_]/g)
+        query = query.replace /[^a-zA-Z0-9-_]/g, (found) -> "\\#{found}"
+        text.replace(new RegExp(query, "gi"), "")
+      #else: dont strip keyword searches (no easy way to tell if within pattern)
+    text
   
-    for endpoint in @endpoints
-      if endpoint.authenticate and not @authenticated
-        console.log "cannot run facebook search for #{endpoint.query}: not authenticated" 
-        continue
 
-      uri = appendTo extras().call(@), endpoint
-      #ajax
-        #.done (result, request)
-          #@lastId (request.uri, request.id)
-          #for each result
-            #next ...
+  callEndpoint = (endpoint, next) ->
+    if endpoint.authenticate and not @authenticated
+      return console.log "cannot run facebook search for #{endpoint.query}: not authenticated" 
+    
+    @ajax[endpoint.uri].abort() if @ajax[endpoint.uri] 
 
-
-
-    ###
-    @ajax.search = ç.ajax
-      uri: searchUri(request.query)
-    .done (result) ->
-      return unless result.data.length > 0
-      setLastId request.query, helper.parseUri(result.paging.previous, "since")
+    @ajax[endpoint.uri] = ç.ajax
+      uri: appendTo extras.call(@, endpoint), endpoint
+    .done (result, status, request) =>
+      @lastId endpoint.uri, helper.parseUri(result.paging.previous, "since")
       result.data.reverse().forEach (entry) ->
         return unless entry.message and entry.id
         console.log "facebook post found: \"#{entry.message.substr(0, 50)}...\" by @#{entry.from.name}" 
-        return console.log "cached - ignoring" if cached request.query, entry
-        return console.log "past - ignoring" if request.from_date and new Date(entry.created_time) < request.from_date
-        return console.log "self-message - ignoring" unless ignorePosts.indexOf(entry.id) is -1
-
+        
         next 
           username: entry.from.name
           fullname: entry.from.name
           avatar_uri: url.picture(entry.from.id)
           profile_uri: "http://facebook.com/#{entry.from.id}"
-          stripped: strip entry.message, request.query
+          stripped: strip entry.message, endpoint.strip
           text: entry.message
           id: entry.id
-        , service
 
     .fail (err, status) ->
-      console.log "error!", err, status
-      if status is 400 and err.error.code is 190 and err.error.error_subcode is 463
-        console.log "facebook auth expired. automatically reauthing.", err.error
-        api.status = false
-        authenticate (response, err) ->
-          return console.log err if err
-          return search request, next
-      else if status is 400 and err.error.code is 190
-        api.status = false
-        onExpired(err, status) if onExpired
-        return console.log "facebook request returned a 400 (fbook code 190)", err
-      else
-        return console.log "facebook request returned a #{status}", err  
-      ###
+      console.log "facebook search error!", err, status
+
+  doSearch: (next) ->
+    callEndpoint.call @, endpoint, next for endpoint in @endpoints
+
 
 exports.Facebook = Facebook 

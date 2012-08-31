@@ -5,6 +5,8 @@ class Service
     @onDeauth = undefined
     @authenticated = false
     @criteria = {}
+    @endpoints = []
+    @last = {}
 
   constructor: (@service = {}) ->
     @reset()
@@ -26,11 +28,15 @@ class Service
       done()
 
   setCriteria: (criteria) ->
+    criteria.timestamp = new Date() 
+    @doGenerateEndpointsFrom criteria
     @criteria = criteria
-    @criteria.timestamp = new Date() 
-    #@doGenerateEndpoints()
 
   getCriteria: () -> @criteria
+
+  lastId: (uri, id) ->
+    @last[uri] = id if id
+    @last[uri]
 
   search: (next) ->
     throw "no criteria set" if !@criteria
