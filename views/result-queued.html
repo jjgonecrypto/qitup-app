@@ -1,15 +1,30 @@
 <li class="found">
-  <ul class="inline">
-    <li>#{helper.image(track.image)}</li>
+  <div class="single-result">
+    <div class="image">#{helper.image(track.image, "thumb track-image")}</div>
+    <div class="body">
+      <div><h3 class="track-name">#{track.name}</h3></div>
+      <div><a class="artist" href=\"#{artist.uri}\">#{artist.name}</a></div>
+      <div>from <a class="album" href=\"#{album.uri}\">#{album.name} (#{album.year})</a></div>
+      <div class="request">
+        <div class="image">#{helper.image(request.avatar_uri, "thumb user-profile")}</div>
+        <div class="details">
+           <a class="profile-link" href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />
+           <div class='request-text'>#{request.text}</div>
+        </div>
+      </div>
+    </div>
+
+    <!--
     <li class='track'>
       <div class="track-name">#{track.name}</div>
       <div>by <a href=\"#{artist.uri}\">#{artist.name}</a></div>
       <div class="album">from <a href=\"#{album.uri}\">#{album.name} (#{album.year})</a></div>
     </li>
-    <li>#{helper.image(request.avatar_uri)}</li>
+    <li>#{helper.image(request.avatar_uri, "thumb user-profile")}</li>
     <li class='user'>
       <a href='#{request.profile_uri}'>#{request.fullname} (@#{request.username})</a><br />
       <div class='request-text'>#{request.text}</div>
     </li>
-  </ul>
+  -->
+  </div>
 </li>

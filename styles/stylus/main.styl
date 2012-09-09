@@ -1,6 +1,4 @@
 $lime = #ccf528
-$thumb_w = 50px
-$thumb_h = 50px
 
 body, html
   margin 0px
@@ -18,8 +16,12 @@ button.sp-button, select, label.for-checkbox, a
   padding 1em
 
 .thumb
-  width $thumb_w
-  height $thumb_h
+  &.user-profile
+    width 60px
+    height 60px
+  &.track-image
+    width 115px
+    height 115px
   
 a.disabled
   opacity 0.5
@@ -50,28 +52,41 @@ ul.results
     max-height 0px
     -webkit-transition max-height 1s
     &.appear
-      max-height 100px  
+      max-height 250px  
     &:nth-child(odd)
       background-color #DDD
     &.found
       opacity 1
     &.not-found
       opacity 0.7  
-    
   li 
     vertical-align middle
-  li.track
-    margin-left 1em
-    width 25em
-    .track-name
-      color black
-      font-weight bold
-  li.user 
-    margin-left 1em
-    > a
-      color #0099cc
-  .request-text
-    max-width 23em
+  .single-result
+    > div
+      float left
+    .body
+      margin-left 1em
+      h3.track-name
+        margin 0px !important
+        padding 0px !important
+        color black
+      .artist
+        font-size 115%
+      .album
+        font-weight bold
+
+      .request
+        > div
+          float left
+        .details
+          margin-left 0.5em
+          > div
+            float left
+          a.profile-link
+            color #0099cc  
+          .request-text
+            font-style italic
+            max-width 35em
 
 
 #powerbar 
