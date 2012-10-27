@@ -95,7 +95,7 @@ search = (search, next) ->
       return console.log "cached - ignoring" if cached search.query, result
       return console.log "past - ignoring" if search.from_date and new Date(result.created_at) < search.from_date
       return console.log "self-tweet - ignoring" unless ignoreTweets.indexOf(result.id_str) is -1
-
+      result.text = result.text.replace(/\&amp;/g,"&")
       next 
         username: result.from_user
         fullname: result.from_user_name

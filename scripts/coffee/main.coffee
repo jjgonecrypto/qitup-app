@@ -90,6 +90,7 @@ init = ->
       lastQuery = query
       playlist = new models.Playlist()
       playlistToSave = if ç("#save_playlist").checked() then new models.Playlist "QItUp: " + lastQuery else null
+      console.log "to save:", playlistToSave
       queuer.reset()
       ç("#results").html ""
 
